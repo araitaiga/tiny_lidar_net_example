@@ -23,7 +23,7 @@ def create_parser() -> argparse.ArgumentParser:
         "--world",
         "-w",
         type=str,
-        default=str(WORLDS_DIR / "simple.json"),
+        default=str(WORLDS_DIR / "simple.yaml"),
         help="ワールド設定ファイルのパス",
     )
     manual_parser.add_argument(
@@ -84,7 +84,7 @@ def create_parser() -> argparse.ArgumentParser:
         "--world",
         "-w",
         type=str,
-        default=str(WORLDS_DIR / "simple.json"),
+        default=str(WORLDS_DIR / "simple.yaml"),
         help="ワールド設定ファイルのパス",
     )
     auto_parser.add_argument(
@@ -104,11 +104,11 @@ def create_parser() -> argparse.ArgumentParser:
 def show_help():
     """ヘルプを表示"""
     print("利用可能なワールドファイル:")
-    for f in sorted(WORLDS_DIR.glob("*.json")):
+    for f in sorted(WORLDS_DIR.glob("*.yaml")):
         print(f"  {f.name}")
 
     print("\n使用方法:")
-    print("  python main.py manual -w worlds/circuit.json              # 手動操作（データ収集）")
+    print("  python main.py manual -w worlds/circuit.yaml              # 手動操作（データ収集）")
     print("  python main.py train -d outputs/data1.npz outputs/data2.npz  # モデル学習（教師あり）")
     print("  python main.py auto -m outputs/driving_model.pth          # 自動制御（CNN）")
 

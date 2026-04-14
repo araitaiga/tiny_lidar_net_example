@@ -1,0 +1,24 @@
+world:
+  height: 60.0
+  width: 100.0
+  step_time: 0.1
+  collision_mode: 'stop'
+  control_mode: 'auto'
+
+robot:
+  - kinematics: {name: 'acker'}
+    shape: {name: 'rectangle', length: 4.0, width: 1.8, wheelbase: 2.5}
+    state: [10.0, 50.0, 0.0, 0.0]
+    goal: [9999, 9999, 0]
+    vel_max: [10.0, 0.7854]
+    sensors:
+      - type: 'lidar2d'
+        range_min: 0.1
+        range_max: 30.0
+        angle_range: 6.28318
+        number: 1081
+        noise: false
+
+obstacle:
+  - shape: {name: 'rectangle', length: 60.0, width: 20.0}
+    state: [50.0, 30.0, 0]
