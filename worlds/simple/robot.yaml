@@ -1,0 +1,11 @@
+kinematics: {name: 'acker'}
+shape: {name: 'rectangle', length: 4.0, width: 1.8, wheelbase: 2.5}
+state: [5.0, 5.0, 0.0, 0.0]
+vel_max: [10.0, 0.7854]
+sensors:
+  - type: 'lidar2d'
+    range_min: 0.1
+    range_max: 30.0
+    angle_range: 6.28318
+    number: 1081
+    noise: false

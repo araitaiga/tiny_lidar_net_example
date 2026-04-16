@@ -23,8 +23,8 @@ def create_parser() -> argparse.ArgumentParser:
         "--world",
         "-w",
         type=str,
-        default=str(WORLDS_DIR / "simple.yaml"),
-        help="ワールド設定ファイルのパス",
+        default=str(WORLDS_DIR / "simple"),
+        help="ワールド設定ディレクトリのパス（robot.yaml + world.yamlを含む）",
     )
     manual_parser.add_argument(
         "--output",
@@ -84,8 +84,8 @@ def create_parser() -> argparse.ArgumentParser:
         "--world",
         "-w",
         type=str,
-        default=str(WORLDS_DIR / "simple.yaml"),
-        help="ワールド設定ファイルのパス",
+        default=str(WORLDS_DIR / "simple"),
+        help="ワールド設定ディレクトリのパス（robot.yaml + world.yamlを含む）",
     )
     auto_parser.add_argument(
         "--model",
@@ -103,14 +103,15 @@ def create_parser() -> argparse.ArgumentParser:
 
 def show_help():
     """ヘルプを表示"""
-    print("利用可能なワールドファイル:")
-    for f in sorted(WORLDS_DIR.glob("*.yaml")):
-        print(f"  {f.name}")
+    print("利用可能なワールド:")
+    for d in sorted(WORLDS_DIR.iterdir()):
+        if d.is_dir() and (d / "world.yaml").exists():
+            print(f"  {d.name}")
 
     print("\n使用方法:")
-    print("  python main.py manual -w worlds/circuit.yaml              # 手動操作（データ収集）")
+    print("  python main.py manual -w worlds/circuit              # 手動操作（データ収集）")
     print("  python main.py train -d outputs/data1.npz outputs/data2.npz  # モデル学習（教師あり）")
-    print("  python main.py auto -m outputs/driving_model.pth          # 自動制御（CNN）")
+    print("  python main.py auto -w worlds/circuit -m outputs/driving_model.pth  # 自動制御（CNN）")
 
 
 def main():

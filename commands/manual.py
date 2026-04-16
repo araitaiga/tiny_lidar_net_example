@@ -1,20 +1,31 @@
 """手動操作コマンド"""
 
-import irsim
-import matplotlib.pyplot as plt
+from pathlib import Path
+
 import numpy as np
 
 
-def run_manual(world_file: str, output_file: str) -> None:
+def run_manual(world_dir: str, output_file: str) -> None:
     """手動操作モードを実行"""
+    import matplotlib.pyplot as plt
+    import robosim2d
+    from robosim2d.viz import RealtimeVisualizer
+
     print("=" * 60)
     print("手動操作モード - 学習データ収集")
     print("=" * 60)
-    print(f"\nワールド: {world_file}")
+
+    world_dir = Path(world_dir)
+    print(f"\nワールド: {world_dir}")
     print(f"出力ファイル: {output_file}")
 
-    env = irsim.make(world_file)
-    robot = env.robot
+    sim = robosim2d.make(
+        robot_file=world_dir / "robot.yaml",
+        world_file=world_dir / "world.yaml",
+        dt=0.1,
+        collision_mode="stop",
+    )
+    viz = RealtimeVisualizer(sim)
 
     speed = 0.0
     steering = 0.0
@@ -43,10 +54,11 @@ def run_manual(world_file: str, output_file: str) -> None:
         elif key in ("q", "escape"):
             is_running = False
 
-    # センサー初期化 + 初期描画
-    env.step(np.zeros((2, 1)))
-    env.render(0.05)
-    plt.gcf().canvas.mpl_connect("key_press_event", on_key)
+    # 初期描画
+    sim.reset()
+    viz.setup()
+    viz.fig.canvas.mpl_connect("key_press_event", on_key)
+    viz.render()
 
     print("\n操作方法:")
     print("  W/↑: 加速  |  S/↓: 減速")
@@ -57,22 +69,26 @@ def run_manual(world_file: str, output_file: str) -> None:
     step = 0
     try:
         while is_running and step < 10000:
-            scan = np.array(robot.get_lidar_scan()["ranges"])
+            scan = sim.get_lidar_scan()
             lidar_data.append(scan)
             control_data.append([steering, speed])
 
-            action = np.array([[speed], [steering]])
-            env.step(action)
-            env.render(0.05)
+            action = np.array([speed, steering])
+            sim.step(action)
+            viz.render(
+                title=f"Simulation Time: {sim.time:.2f}s  |  "
+                f"Speed: {speed:.2f}  Steering: {steering:.2f}"
+            )
+            plt.pause(0.01)
             step += 1
 
-            if not plt.get_fignums():
+            if not plt.fignum_exists(viz.fig.number):
                 break
 
     except KeyboardInterrupt:
         print("\n操作を中断しました。")
 
-    env.end(ending_time=0)
+    viz.close()
 
     if lidar_data:
         X = np.array(lidar_data)

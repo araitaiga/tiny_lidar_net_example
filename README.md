@@ -2,7 +2,7 @@
 
 2D LiDARシミュレーションと教師あり学習による自動運転の最小構成サンプル。
 
-シミュレーション環境に [IR-SIM](https://github.com/hanruihua/ir-sim) を使用し、
+シミュレーション環境に [robosim2d](../robosim2d/) を使用し、
 キーボード操作でのデータ収集 → CNN学習 → 自動運転の一連の流れを体験できる。
 
 ## 構成
@@ -20,8 +20,12 @@ tiny-lidar-net-example/
 │       ├── dataset.py     # LidarDataset（NPZローダー）
 │       └── trainer.py     # 学習ループ
 ├── worlds/
-│   ├── simple.yaml        # 50×50 の障害物ワールド
-│   └── circuit.yaml       # 100×60 のサーキットコース
+│   ├── circuit/           # 100×60 のサーキットコース
+│   │   ├── robot.yaml     # ロボット設定
+│   │   └── world.yaml     # ワールド設定
+│   └── simple/            # 50×50 の障害物ワールド
+│       ├── robot.yaml
+│       └── world.yaml
 ├── outputs/               # 出力先（モデル・学習データ・プロット）
 └── pyproject.toml
 ```
@@ -30,10 +34,10 @@ tiny-lidar-net-example/
 
 | コンポーネント | 説明 |
 |---|---|
-| **IR-SIM** | 2Dシミュレーション環境。車両物理（Ackermannモデル）、LiDARセンサー（1081本レイ）、衝突判定、描画をすべて担当 |
-| **commands/** | CLIサブコマンド。IR-SIMの環境を作成・操作する |
+| **robosim2d** | 2Dシミュレーション環境。車両物理（Ackermann/DiffDriveモデル）、LiDARセンサー（1081本レイ）、衝突判定、描画をすべて担当 |
+| **commands/** | CLIサブコマンド。robosim2dの環境を作成・操作する |
 | **simulator/ml/** | PyTorchベースのCNNモデルと学習パイプライン。シミュレーターには依存しない |
-| **worlds/** | IR-SIM形式のYAMLワールド定義ファイル |
+| **worlds/** | ワールド定義ディレクトリ（各ワールドにrobot.yaml + world.yamlを格納） |
 
 ## セットアップ
 
@@ -47,11 +51,11 @@ uv pip install -e ".[all]"
 pip install -e ".[all]"
 ```
 
-`[all]` は IR-SIM + PyTorch をインストールする。
+`[all]` は matplotlib + PyTorch をインストールする。
 PyTorchが不要（手動操作のみ）の場合:
 
 ```bash
-uv pip install -e .
+uv pip install -e ".[viz]"
 ```
 
 ## 使い方
@@ -63,7 +67,7 @@ uv pip install -e .
 キーボードで車両を操作し、LiDARスキャンと操作入力のペアを記録する。
 
 ```bash
-python main.py manual -w worlds/circuit.yaml -o outputs/training_data.npz
+python main.py manual -w worlds/circuit -o outputs/training_data.npz
 ```
 
 シミュレーターウィンドウが開き、車両とLiDARが表示される。
@@ -112,7 +116,7 @@ python main.py train -d outputs/data1.npz outputs/data2.npz -o outputs/model.pth
 学習済みモデルを使って車両を自動制御する。
 
 ```bash
-python main.py auto -w worlds/circuit.yaml -m outputs/model.pth
+python main.py auto -w worlds/circuit -m outputs/model.pth
 ```
 
 LiDARスキャンをモデルに入力し、予測されたステアリングと速度で車両を制御する。
@@ -127,43 +131,44 @@ python main.py list
 
 ## ワールド定義
 
-ワールドは `worlds/` ディレクトリの YAML ファイルで定義する（IR-SIM形式）。
+ワールドは `worlds/` ディレクトリ配下にサブディレクトリとして定義する。
+各サブディレクトリに `robot.yaml`（ロボット設定）と `world.yaml`（ワールド設定）を配置する。
 
+**robot.yaml:**
+```yaml
+kinematics: {name: 'acker'}                                      # Ackermann（自転車）モデル
+shape: {name: 'rectangle', length: 4.0, width: 1.8, wheelbase: 2.5}
+state: [5.0, 5.0, 0.0, 0.0]                                     # [x, y, yaw, steering]
+vel_max: [10.0, 0.7854]                                          # [最大速度, 最大ステアリング角]
+sensors:
+  - type: 'lidar2d'
+    number: 1081           # レイ数
+    range_max: 30.0        # 最大検出距離 [m]
+    angle_range: 6.28318   # 360度
+```
+
+**world.yaml:**
 ```yaml
 world:
   height: 50.0
   width: 50.0
-  step_time: 0.1
-  collision_mode: 'stop'    # 衝突時に停止
-  control_mode: 'auto'      # プログラムで制御
-
-robot:
-  - kinematics: {name: 'acker'}                                      # Ackermann（自転車）モデル
-    shape: {name: 'rectangle', length: 4.0, width: 1.8, wheelbase: 2.5}
-    state: [5.0, 5.0, 0.0, 0.0]                                     # [x, y, yaw, steering]
-    vel_max: [10.0, 0.7854]                                          # [最大速度, 最大ステアリング角]
-    sensors:
-      - type: 'lidar2d'
-        number: 1081           # レイ数
-        range_max: 30.0        # 最大検出距離 [m]
-        angle_range: 6.28318   # 360度
 
 obstacle:
   - shape: {name: 'rectangle', length: 4.0, width: 4.0}
-    state: [15.0, 15.0, 0]    # [x, y, yaw]
+    state: [15.0, 15.0, 0]    # [x, y, angle]
 ```
 
 ## データフロー
 
 ```
 手動運転
-  キーボード → [speed, steering] → env.step() → LiDARスキャン記録 → .npz
+  キーボード → [speed, steering] → sim.step() → LiDARスキャン記録 → .npz
 
 学習
   .npz → LidarDataset → DrivingNet (1D CNN) → .pth
 
 自動運転
-  LiDARスキャン → DrivingNet.predict() → [speed, steering] → env.step()
+  LiDARスキャン → DrivingNet.predict() → [speed, steering] → sim.step()
 ```
 
 ## DrivingNet アーキテクチャ
