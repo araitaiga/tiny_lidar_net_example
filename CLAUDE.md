@@ -7,8 +7,8 @@ Use Japanese language for all responses unless explicitly asked otherwise.
 
 ## プロジェクト概要
 
-tiny-lidar-net学習用の最小2Dシミュレーター。tiny-lidar-net-playgroundからの教育目的の抽出版。
-静的環境のみを対象とし、教師あり学習（CNN: DrivingNet）に焦点を当てる。
+**TinyLiDARNet** を解説するための最小2Dシミュレーターサンプル。tiny-lidar-net-playgroundからの教育目的の抽出版。
+静的環境のみを対象とし、教師あり学習（1D CNN: TinyLiDARNet）に焦点を当てる。
 シミュレーション環境にはrobosim2d（軽量2Dロボットシミュレーター）を使用。
 
 Python 3.11+、パッケージマネージャ: uv、MLフレームワーク: PyTorch、シミュレーター: robosim2d。
@@ -17,14 +17,13 @@ Python 3.11+、パッケージマネージャ: uv、MLフレームワーク: PyT
 
 ```bash
 # インストール（uv使用）
-uv pip install -e ".[all]"       # 全機能（robosim2d + matplotlib + torch）
-uv pip install -e ".[ml]"        # コア + MLのみ
+uv pip install -e .                # numpy/robosim2d/matplotlib/torch をすべて取得
 
 # CLIコマンド（すべてmain.py経由、出力は outputs/ ディレクトリ）
-uv run python main.py manual -w worlds/circuit -o outputs/training_data.npz   # 手動操作でデータ収集
-uv run python main.py train -d outputs/data.npz -o outputs/model.pth -e 100  # CNN学習
-uv run python main.py auto -w worlds/circuit -m outputs/model.pth            # CNN自動運転
-uv run python main.py list                                                    # ワールド一覧
+uv run python main.py collect   -w worlds/circuit -o outputs/training_data.npz          # 手動運転で教師データ収集
+uv run python main.py train     -d outputs/data.npz -o outputs/tiny_lidar_net.pth -e 100  # CNN学習
+uv run python main.py autodrive -w worlds/circuit -m outputs/tiny_lidar_net.pth         # TinyLiDARNetで自動運転
+uv run python main.py list                                                              # ワールド一覧
 
 # テスト（テストスイートは未作成）
 uv run pytest
@@ -37,15 +36,15 @@ uv run pytest
 ```
 main.py              # argparse CLIエントリーポイント、commands/へディスパッチ
 outputs/             # 出力ファイル（モデル .pth、学習データ .npz、プロット .png）
-commands/            # CLIサブコマンド（manual, train, auto）
-  manual.py          # robosim2d環境を作成、キーボード操作でデータ収集
+commands/            # CLIサブコマンド（collect, train, autodrive）
+  collect.py         # robosim2d環境を作成、キーボードの手動運転で教師データ収集
   train.py           # CNN学習（NPZファイルからモデル生成）
-  auto.py            # robosim2d環境を作成、学習済みモデルで自動運転
-simulator/
-  ml/                # 機械学習（torch必須）
-    model.py         # DrivingNet: 1D CNN（1081入力 → ステアリング + 速度出力）
-    dataset.py       # LidarDataset: NPZファイルをPyTorch Datasetとして読み込み
-    trainer.py       # 学習ループ（train/val分割、MSE損失）
+  autodrive.py       # robosim2d環境を作成、学習済みモデルで自動運転
+tiny_lidar_net/      # TinyLiDARNet パッケージ（torch必須）
+  control.py         # Control: ステアリング・速度を保持する NamedTuple
+  model.py           # TinyLiDARNet: 1D CNN（1081入力 → ステアリング + 速度出力）
+  dataset.py         # LidarDataset: NPZファイルをPyTorch Datasetとして読み込み
+  trainer.py         # 学習ループ（train/val分割、MSE損失）
 worlds/              # ワールド設定（ディレクトリごとにrobot.yaml + world.yamlを格納）
   circuit/           # サーキットコース
     robot.yaml       # ロボット設定（kinematics, shape, sensors）
@@ -60,12 +59,16 @@ worlds/              # ワールド設定（ディレクトリごとにrobot.yam
 - **robosim2dによるシミュレーション**: 車両物理（Ackermann/DiffDriveモデル）、LiDARセンサー、衝突判定、可視化はrobosim2dが担当。独自のシミュレーターコードは持たない。
 - **静的環境のみ**: ワールドは静的矩形障害物と境界壁のみ。
 - **データ形式**: 学習データは`.npz`で保存。配列は`lidar` (N, 1081)と`control` (N, 2)。複数NPZファイルを結合して学習可能。
+- **Control 型による並び順固定**: `tiny_lidar_net.Control` (NamedTuple) で `[steering, speed]` ↔ `[speed, steering]` の変換を集約。学習データ・モデル出力は `[steering, speed]`、robosim2d の action は `[speed, steering]`。
+- **説明用コード**: 教育目的のため、複雑な torch optional ガードや動的分岐は持たず、シンプルさと可読性を優先する。
 
 ### データフロー
 
-手動運転: キーボード → action [speed, steering] → sim.step() → (lidar, control)ペア → outputs/*.npz
-CNN学習: outputs/*.npz → LidarDataset → Trainer → outputs/*.pth + outputs/*.png
-CNN自動運転: LiDARスキャン → DrivingNet.predict() → action → sim.step()
+collect:   キーボード → Control(steering, speed) → sim.step() → (lidar, control)ペア → outputs/*.npz
+train:     outputs/*.npz → LidarDataset → Trainer → outputs/*.pth + outputs/*.png
+autodrive: LiDARスキャン → TinyLiDARNet.predict() → Control → sim.step()
+
+`collect` では `speed=0 and steering=0` の停止フレームは記録しない（ラベル分布の偏り防止）。
 
 ### 規約
 

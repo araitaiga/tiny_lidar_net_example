@@ -1,11 +1,11 @@
 """CLIコマンドモジュール"""
 
-from commands.auto import run_auto
-from commands.manual import run_manual
+from commands.autodrive import run_autodrive
+from commands.collect import run_collect
 from commands.train import run_train
 
 __all__ = [
-    "run_manual",
+    "run_collect",
     "run_train",
-    "run_auto",
+    "run_autodrive",
 ]

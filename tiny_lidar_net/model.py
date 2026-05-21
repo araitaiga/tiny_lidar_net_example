@@ -1,0 +1,102 @@
+"""TinyLiDARNet モデル定義。"""
+
+import numpy as np
+import torch
+import torch.nn as nn
+
+from tiny_lidar_net.control import Control
+
+
+class TinyLiDARNet(nn.Module):
+    """LiDARスキャンから制御値を回帰する 1D CNN。
+
+    入力長は `input_length` で可変。Conv 5層通過後の時間軸長から
+    FC1 のサイズを動的に決定する（公式 Keras 実装と等価な遅延構築）。
+
+    Architecture (input_length=1081 の例):
+        入力: (batch, 1, 1081)  LiDARスキャン
+            Conv1d(1 -> 24,  k=10, s=4) -> 268
+            Conv1d(24 -> 36, k=8,  s=4) -> 66
+            Conv1d(36 -> 48, k=4,  s=2) -> 32
+            Conv1d(48 -> 64, k=3,  s=1) -> 30
+            Conv1d(64 -> 64, k=3,  s=1) -> 28
+            Flatten                      -> 1792
+            FC(1792 -> 100) + ReLU + Dropout
+            FC(100 -> 50)   + ReLU + Dropout
+            FC(50 -> 10)    + ReLU
+            FC(10 -> 2)     + tanh   # 出力域 [-1, 1]（学習ラベルも正規化）
+        出力: (batch, 2)  [steering_norm, speed_norm]  ∈ [-1, 1]
+            推論時は ``Control.from_normalized`` で物理値へ戻す。
+    """
+
+    _CONV_PARAMS = [(10, 4), (8, 4), (4, 2), (3, 1), (3, 1)]
+
+    @classmethod
+    def _conv_out_len(cls, n: int) -> int:
+        """Conv1d 5層通過後の時間軸長を算出。"""
+        for k, s in cls._CONV_PARAMS:
+            n = (n - k) // s + 1
+        return n
+
+    def __init__(self, input_length: int = 1081):
+        super().__init__()
+        self.input_length = input_length
+
+        self.conv1 = nn.Conv1d(1, 24, kernel_size=10, stride=4)
+        self.conv2 = nn.Conv1d(24, 36, kernel_size=8, stride=4)
+        self.conv3 = nn.Conv1d(36, 48, kernel_size=4, stride=2)
+        self.conv4 = nn.Conv1d(48, 64, kernel_size=3, stride=1)
+        self.conv5 = nn.Conv1d(64, 64, kernel_size=3, stride=1)
+
+        self.flatten = nn.Flatten()
+        flat_len = 64 * self._conv_out_len(input_length)
+        self.fc1 = nn.Linear(flat_len, 100)
+        self.fc2 = nn.Linear(100, 50)
+        self.fc3 = nn.Linear(50, 10)
+        self.fc4 = nn.Linear(10, 2)
+
+        self.relu = nn.ReLU()
+        self.dropout = nn.Dropout(0.2)
+
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        x = self.relu(self.conv1(x))
+        x = self.relu(self.conv2(x))
+        x = self.relu(self.conv3(x))
+        x = self.relu(self.conv4(x))
+        x = self.relu(self.conv5(x))
+
+        x = self.flatten(x)
+
+        x = self.relu(self.fc1(x))
+        x = self.dropout(x)
+        x = self.relu(self.fc2(x))
+        x = self.dropout(x)
+        x = self.relu(self.fc3(x))
+        x = torch.tanh(self.fc4(x))
+        return x
+
+    def predict(self, lidar_scan: np.ndarray) -> Control:
+        """LiDARスキャン1本から制御値を推論する（tanh出力を物理値へ逆正規化）。"""
+        self.eval()
+        device = next(self.parameters()).device
+        with torch.no_grad():
+            x = torch.from_numpy(lidar_scan).float().view(1, 1, -1).to(device)
+            output = self(x)
+        return Control.from_normalized(output[0].cpu().numpy())
+
+    def save(self, filepath: str) -> None:
+        torch.save(
+            {"state_dict": self.state_dict(), "input_length": self.input_length},
+            filepath,
+        )
+        print(f"Model saved: {filepath}")
+
+    @classmethod
+    def load(cls, filepath: str, device: str = "cpu") -> "TinyLiDARNet":
+        checkpoint = torch.load(filepath, map_location=device, weights_only=True)
+        model = cls(input_length=checkpoint["input_length"])
+        model.load_state_dict(checkpoint["state_dict"])
+        model.to(device)
+        model.eval()
+        print(f"Model loaded: {filepath} (input_length={model.input_length})")
+        return model

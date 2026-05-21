@@ -1,4 +1,4 @@
-"""自動運転シミュレーター CLI"""
+"""TinyLiDARNet サンプル CLI"""
 
 import argparse
 from pathlib import Path
@@ -14,104 +14,108 @@ def ensure_output_dir(filepath: str) -> None:
 
 def create_parser() -> argparse.ArgumentParser:
     """引数パーサーを作成"""
-    parser = argparse.ArgumentParser(description="自動運転シミュレーター")
-    subparsers = parser.add_subparsers(dest="command", help="コマンド")
+    parser = argparse.ArgumentParser(description="TinyLiDARNet example")
+    subparsers = parser.add_subparsers(dest="command", help="Command")
 
-    # 手動操作コマンド
-    manual_parser = subparsers.add_parser("manual", help="手動操作（学習データ収集）")
-    manual_parser.add_argument(
+    # 学習データ収集コマンド（手動運転で記録）
+    collect_parser = subparsers.add_parser(
+        "collect", help="Collect training data via manual driving"
+    )
+    collect_parser.add_argument(
         "--world",
         "-w",
         type=str,
         default=str(WORLDS_DIR / "simple"),
-        help="ワールド設定ディレクトリのパス（robot.yaml + world.yamlを含む）",
+        help="Path to world config directory (containing robot.yaml + world.yaml)",
     )
-    manual_parser.add_argument(
+    collect_parser.add_argument(
         "--output",
         "-o",
         type=str,
         default="outputs/training_data.npz",
-        help="学習データ出力ファイル（.npz形式）",
+        help="Training data output file (.npz format)",
     )
 
     # 学習コマンド
-    train_parser = subparsers.add_parser("train", help="モデル学習")
+    train_parser = subparsers.add_parser("train", help="Train the model")
     train_parser.add_argument(
         "--data",
         "-d",
         type=str,
         nargs="+",
         required=True,
-        help="学習データファイル（複数指定可、.npz形式）",
+        help="Training data files (one or more, .npz format)",
     )
     train_parser.add_argument(
         "--output",
         "-o",
         type=str,
-        default="outputs/driving_model.pth",
-        help="モデル出力ファイル（.pth形式）",
+        default="outputs/tiny_lidar_net.pth",
+        help="Model output file (.pth format)",
     )
     train_parser.add_argument(
         "--epochs",
         "-e",
         type=int,
-        default=100,
-        help="エポック数",
+        default=20,
+        help="Number of epochs (official default: 20)",
     )
     train_parser.add_argument(
         "--batch-size",
         "-b",
         type=int,
-        default=32,
-        help="バッチサイズ",
+        default=64,
+        help="Batch size (official default: 64)",
     )
     train_parser.add_argument(
         "--lr",
         type=float,
-        default=0.001,
-        help="学習率",
+        default=5e-5,
+        help="Learning rate (official default: 5e-5)",
     )
     train_parser.add_argument(
         "--save-best",
         type=str,
         default=None,
-        help="ベストモデル保存先（指定時のみ有効）",
+        help="Best-model save path (only effective when specified)",
     )
 
-    # 自動制御コマンド
-    auto_parser = subparsers.add_parser("auto", help="自動制御（NNモデル使用）")
-    auto_parser.add_argument(
+    # 自動運転コマンド（学習済みモデルで自動制御）
+    autodrive_parser = subparsers.add_parser(
+        "autodrive", help="Run autodrive with a trained TinyLiDARNet"
+    )
+    autodrive_parser.add_argument(
         "--world",
         "-w",
         type=str,
         default=str(WORLDS_DIR / "simple"),
-        help="ワールド設定ディレクトリのパス（robot.yaml + world.yamlを含む）",
+        help="Path to world config directory (containing robot.yaml + world.yaml)",
     )
-    auto_parser.add_argument(
+    autodrive_parser.add_argument(
         "--model",
         "-m",
         type=str,
-        default="outputs/driving_model.pth",
-        help="学習済みモデルファイル（.pth形式）",
+        default="outputs/tiny_lidar_net.pth",
+        help="Trained model file (.pth format)",
     )
 
     # ワールド一覧
-    subparsers.add_parser("list", help="ワールドファイル一覧")
+    subparsers.add_parser("list", help="List available worlds")
 
     return parser
 
 
 def show_help():
     """ヘルプを表示"""
-    print("利用可能なワールド:")
+    print("Available worlds:")
     for d in sorted(WORLDS_DIR.iterdir()):
         if d.is_dir() and (d / "world.yaml").exists():
             print(f"  {d.name}")
 
-    print("\n使用方法:")
-    print("  python main.py manual -w worlds/circuit              # 手動操作（データ収集）")
-    print("  python main.py train -d outputs/data1.npz outputs/data2.npz  # モデル学習（教師あり）")
-    print("  python main.py auto -w worlds/circuit -m outputs/driving_model.pth  # 自動制御（CNN）")
+    print("\nUsage:")
+    print("  python main.py collect   -w worlds/circuit              # Collect training data via manual driving")
+    print("  python main.py train     -d outputs/data1.npz outputs/data2.npz  # Train the model (supervised)")
+    print("  python main.py autodrive -w worlds/circuit -m outputs/tiny_lidar_net.pth  # Autodrive (TinyLiDARNet)")
 
 
 def main():
@@ -123,11 +127,11 @@ def main():
         show_help()
         return
 
-    if args.command == "manual":
+    if args.command == "collect":
         ensure_output_dir(args.output)
-        from commands.manual import run_manual
+        from commands.collect import run_collect
 
-        run_manual(args.world, args.output)
+        run_collect(args.world, args.output)
 
     elif args.command == "train":
         ensure_output_dir(args.output)
@@ -135,10 +139,10 @@ def main():
 
         run_train(args.data, args.output, args.epochs, args.batch_size, args.lr, args.save_best)
 
-    elif args.command == "auto":
-        from commands.auto import run_auto
+    elif args.command == "autodrive":
+        from commands.autodrive import run_autodrive
 
-        run_auto(args.world, args.model)
+        run_autodrive(args.world, args.model)
 
 
 if __name__ == "__main__":

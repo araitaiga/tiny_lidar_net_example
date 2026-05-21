@@ -1,6 +1,8 @@
-"""モデル学習コマンド"""
+"""モデル学習コマンド。"""
 
 from pathlib import Path
+
+from tiny_lidar_net import train_from_file
 
 
 def run_train(
@@ -11,21 +13,10 @@ def run_train(
     learning_rate: float,
     save_best: str | None = None,
 ) -> None:
-    """モデル学習を実行
-
-    Args:
-        data_files: 学習データファイルのリスト
-        model_output: モデル出力ファイル
-        epochs: エポック数
-        batch_size: バッチサイズ
-        learning_rate: 学習率
-    """
-    from simulator import train_from_file
-
-    # ファイル存在チェック
+    """データファイルを読み込んで TinyLiDARNet を学習する。"""
     missing_files = [f for f in data_files if not Path(f).exists()]
     if missing_files:
-        print("エラー: 以下のファイルが見つかりません:")
+        print("Error: the following files were not found:")
         for f in missing_files:
             print(f"  {f}")
         return
