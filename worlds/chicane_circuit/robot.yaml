@@ -1,0 +1,14 @@
+kinematics: {name: 'acker'}
+shape: {name: 'rectangle', length: 4.0, width: 1.8, wheelbase: 2.5}
+# 開始位置: 上側コリドール西端、東向き (theta=0)
+# ここから時計回り (CW) に走行すると 4 コーナーは全て右折となり、
+# 上側ストレート途中のシケインで一度だけ左折が発生する。
+state: [15.0, 67.0, 0.0, 0.0]
+vel_max: [10.0, 0.7854]
+sensors:
+  - type: 'lidar2d'
+    range_min: 0.1
+    range_max: 30.0
+    angle_range: 6.28318
+    number: 1081
+    noise: false
