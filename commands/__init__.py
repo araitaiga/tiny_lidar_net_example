@@ -1,4 +1,4 @@
-"""CLIコマンドモジュール"""
+"""CLI command modules."""
 
 from commands.autodrive import run_autodrive
 from commands.collect import run_collect

@@ -1,4 +1,4 @@
-"""TinyLiDARNet モデル定義。"""
+"""TinyLiDARNet model definition."""
 
 import numpy as np
 import torch
@@ -8,13 +8,14 @@ from tiny_lidar_net.control import Control
 
 
 class TinyLiDARNet(nn.Module):
-    """LiDARスキャンから制御値を回帰する 1D CNN。
+    """A 1D CNN that regresses control values from a LiDAR scan.
 
-    入力長は `input_length` で可変。Conv 5層通過後の時間軸長から
-    FC1 のサイズを動的に決定する（公式 Keras 実装と等価な遅延構築）。
+    The input length is variable via `input_length`. The FC1 size is determined
+    dynamically from the time-axis length after the five Conv layers
+    (equivalent to the lazy construction in the official Keras implementation).
 
-    Architecture (input_length=1081 の例):
-        入力: (batch, 1, 1081)  LiDARスキャン
+    Architecture (input_length=1081 example):
+        Input: (batch, 1, 1081)  LiDAR scan
             Conv1d(1 -> 24,  k=10, s=4) -> 268
             Conv1d(24 -> 36, k=8,  s=4) -> 66
             Conv1d(36 -> 48, k=4,  s=2) -> 32
@@ -24,16 +25,16 @@ class TinyLiDARNet(nn.Module):
             FC(1792 -> 100) + ReLU + Dropout
             FC(100 -> 50)   + ReLU + Dropout
             FC(50 -> 10)    + ReLU
-            FC(10 -> 2)     + tanh   # 出力域 [-1, 1]（学習ラベルも正規化）
-        出力: (batch, 2)  [steering_norm, speed_norm]  ∈ [-1, 1]
-            推論時は ``Control.from_normalized`` で物理値へ戻す。
+            FC(10 -> 2)     + tanh   # Output range [-1, 1] (training labels are normalized too)
+        Output: (batch, 2)  [steering_norm, speed_norm]  ∈ [-1, 1]
+            At inference time, ``Control.from_normalized`` converts back to physical values.
     """
 
     _CONV_PARAMS = [(10, 4), (8, 4), (4, 2), (3, 1), (3, 1)]
 
     @classmethod
     def _conv_out_len(cls, n: int) -> int:
-        """Conv1d 5層通過後の時間軸長を算出。"""
+        """Compute the time-axis length after the five Conv1d layers."""
         for k, s in cls._CONV_PARAMS:
             n = (n - k) // s + 1
         return n
@@ -76,7 +77,7 @@ class TinyLiDARNet(nn.Module):
         return x
 
     def predict(self, lidar_scan: np.ndarray) -> Control:
-        """LiDARスキャン1本から制御値を推論する（tanh出力を物理値へ逆正規化）。"""
+        """Predict control values from a single LiDAR scan (de-normalize the tanh output to physical values)."""
         self.eval()
         device = next(self.parameters()).device
         with torch.no_grad():

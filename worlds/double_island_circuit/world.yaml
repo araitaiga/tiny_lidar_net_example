@@ -1,0 +1,69 @@
+# 中央島を左右 2 つに分割した周回コース。中央に南北方向の貫通通路がある。
+#
+# レイアウト概要:
+#   - 外周壁 (120 x 80, 厚さ 5) で四方を囲む
+#   - 左中央島 (30 x 25) を (35, 40) に配置
+#   - 右中央島 (30 x 25) を (85, 40) に配置
+#   - 島と島の間 (x=50..70) は南北方向の貫通通路 (幅 20 m)
+#   - 外周のみを反時計回り / 時計回りで走るパターンに加え、
+#     中央通路を抜けて 8 の字状に走行することも可能
+#   - 左折と右折の両方が発生するため、学習データの偏りが緩和される
+#
+# コリドール幅 (実走行可能領域):
+#   下 / 上 = 22.5 m,  左 / 右 = 15 m,  中央通路 = 20 m
+world:
+  height: 80.0
+  width: 120.0
+
+obstacle:
+  # 外周壁（下）
+  - shape: { name: "rectangle", length: 120.0, width: 5.0 }
+    state: [60.0, 2.5, 0]
+  # 外周壁（上）
+  - shape: { name: "rectangle", length: 120.0, width: 5.0 }
+    state: [60.0, 77.5, 0]
+  # 外周壁（左）
+  - shape: { name: "rectangle", length: 5.0, width: 70.0 }
+    state: [2.5, 40.0, 0]
+  # 外周壁（右）
+  - shape: { name: "rectangle", length: 5.0, width: 70.0 }
+    state: [117.5, 40.0, 0]
+
+  # 左中央島
+  - shape: { name: "rectangle", length: 30.0, width: 25.0 }
+    state: [35.0, 40.0, 0]
+  # → x=20..50, y=27.5..52.5 を占有
+
+  # 右中央島
+  - shape: { name: "rectangle", length: 30.0, width: 25.0 }
+    state: [85.0, 40.0, 0]
+  # → x=70..100, y=27.5..52.5 を占有
+
+  # 中央の障害物（通路中央でラインを左右に振らせる）
+  - shape: { name: "rectangle", length: 30.0, width: 5.0 }
+    state: [60.0, 40.0, 0]
+
+
+  # 上側ストレートの小障害物
+  - shape: { name: "rectangle", length: 1.5, width: 1.5 }
+    state: [25.0, 68.0, 0]
+  - shape: { name: "rectangle", length: 1.5, width: 1.5 }
+    state: [60.0, 65.0, 0]
+  - shape: { name: "rectangle", length: 1.5, width: 1.5 }
+    state: [95.0, 68.0, 0]
+
+  # 下側ストレートの小障害物
+  - shape: { name: "rectangle", length: 1.5, width: 1.5 }
+    state: [25.0, 12.0, 0]
+  - shape: { name: "rectangle", length: 1.5, width: 1.5 }
+    state: [60.0, 15.0, 0]
+  - shape: { name: "rectangle", length: 1.5, width: 1.5 }
+    state: [95.0, 12.0, 0]
+
+  # 左コリドールの小障害物
+  - shape: { name: "rectangle", length: 1.5, width: 1.5 }
+    state: [12.0, 40.0, 0]
+
+  # 右コリドールの小障害物
+  - shape: { name: "rectangle", length: 1.5, width: 1.5 }
+    state: [108.0, 40.0, 0]

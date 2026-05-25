@@ -1,4 +1,4 @@
-"""自動運転コマンド: 学習済み TinyLiDARNet で車両を自動制御する。"""
+"""Autodrive command: control the vehicle automatically with a trained TinyLiDARNet."""
 
 from pathlib import Path
 
@@ -6,13 +6,13 @@ import matplotlib.pyplot as plt
 import robosim2d
 from robosim2d.viz import RealtimeVisualizer
 
-from tiny_lidar_net import TinyLiDARNet
+from tiny_lidar_net import DT, TinyLiDARNet
 
 MAX_STEPS = 10000
 
 
 def run_autodrive(world_dir: str, model_file: str) -> None:
-    """学習済み TinyLiDARNet で自動運転を実行する。"""
+    """Run autonomous driving with a trained TinyLiDARNet."""
     print("=" * 60)
     print("Autodrive Mode - Automatic control via TinyLiDARNet")
     print("=" * 60)
@@ -27,7 +27,7 @@ def run_autodrive(world_dir: str, model_file: str) -> None:
     sim = robosim2d.make(
         robot_file=world_dir / "robot.yaml",
         world_file=world_dir / "world.yaml",
-        dt=0.1,
+        dt=DT,
         collision_mode="stop",
     )
     viz = RealtimeVisualizer(sim)
@@ -55,6 +55,7 @@ def run_autodrive(world_dir: str, model_file: str) -> None:
             )
             plt.pause(0.01)
 
+            # Check if the window was closed
             if not plt.fignum_exists(viz.fig.number):
                 break
 

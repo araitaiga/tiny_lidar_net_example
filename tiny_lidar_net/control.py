@@ -1,39 +1,40 @@
-"""車両制御値の型定義。"""
+"""Type definitions for vehicle control values."""
 
 from typing import NamedTuple
 
 import numpy as np
 
-# モデル最終層 tanh の出力域 [-1, 1] と物理値を対応させる正規化定数。
-# 学習時はこの値でラベルを [-1, 1] に正規化、推論時は逆変換で物理値へ戻す。
+# Normalization constants that map the tanh output range [-1, 1] of the model's
+# final layer to physical values. During training, labels are normalized into
+# [-1, 1] by these values; during inference, they are de-normalized back to physical values.
 MAX_STEERING = 0.5  # [rad]
 MAX_SPEED = 5.0     # [m/s]
 
 
 class Control(NamedTuple):
-    """車両制御値（ステアリング角と速度）。
+    """Vehicle control values (steering angle and speed).
 
-    並び順の規約:
-        - 学習データ (.npz) / モデル出力テンソル: [steering, speed]
-        - robosim2d ``sim.step()`` の action 配列:  [speed, steering]
+    Ordering conventions:
+        - Training data (.npz) / model output tensor: [steering, speed]
+        - robosim2d ``sim.step()`` action array:       [speed, steering]
 
-    並び順の入れ替えミスを防ぐため、変換は ``to_array()`` / ``to_action()``
-    に集約する。
+    Use ``to_array()`` / ``to_action()`` for conversions, so the ordering
+    is centralized in this class and cannot be mixed up.
     """
 
     steering: float
     speed: float
 
     def to_array(self) -> np.ndarray:
-        """学習データ保存用 ``[steering, speed]`` 配列に変換。"""
+        """Convert to a ``[steering, speed]`` array used for training-data storage."""
         return np.array([self.steering, self.speed], dtype=np.float32)
 
     def to_action(self) -> np.ndarray:
-        """robosim2d ``sim.step()`` 用 ``[speed, steering]`` 配列に変換。"""
+        """Convert to a ``[speed, steering]`` array used by robosim2d ``sim.step()``."""
         return np.array([self.speed, self.steering], dtype=np.float32)
 
     def to_normalized(self) -> np.ndarray:
-        """tanh 出力域 [-1, 1] に正規化した ``[steering, speed]`` 配列。"""
+        """Return a ``[steering, speed]`` array normalized to the tanh output range [-1, 1]."""
         return np.array(
             [self.steering / MAX_STEERING, self.speed / MAX_SPEED],
             dtype=np.float32,
@@ -41,12 +42,12 @@ class Control(NamedTuple):
 
     @classmethod
     def from_array(cls, arr) -> "Control":
-        """学習データ ``[steering, speed]`` 配列から復元。"""
+        """Restore from a training-data ``[steering, speed]`` array."""
         return cls(steering=float(arr[0]), speed=float(arr[1]))
 
     @classmethod
     def from_normalized(cls, arr) -> "Control":
-        """tanh 出力 ``[steering, speed]`` (∈ [-1, 1]) を物理値へ逆正規化。"""
+        """De-normalize a tanh output ``[steering, speed]`` (∈ [-1, 1]) to physical values."""
         return cls(
             steering=float(arr[0]) * MAX_STEERING,
             speed=float(arr[1]) * MAX_SPEED,

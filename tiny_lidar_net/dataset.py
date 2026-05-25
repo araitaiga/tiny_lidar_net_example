@@ -1,4 +1,4 @@
-"""LiDAR学習データセット。"""
+"""LiDAR training dataset."""
 
 import numpy as np
 import torch
@@ -8,14 +8,15 @@ from tiny_lidar_net.control import MAX_SPEED, MAX_STEERING
 
 
 class LidarDataset(Dataset):
-    """LiDARスキャンと制御値のペアを保持するデータセット。
+    """Dataset holding pairs of LiDAR scans and control values.
 
-    形状:
+    Shapes:
         lidar:   (N, 1081)
-        control: (N, 2)  [steering, speed]   ※物理値で保存
+        control: (N, 2)  [steering, speed]   (stored as physical values)
 
-    モデル最終層が tanh のため、制御ラベルは ``MAX_STEERING`` / ``MAX_SPEED``
-    で割って ``[-1, 1]`` に正規化したテンソルを返す。
+    Because the model's final layer is tanh, the control labels are returned as
+    tensors divided by ``MAX_STEERING`` / ``MAX_SPEED`` so that they are normalized
+    into ``[-1, 1]``.
     """
 
     def __init__(self, lidar_data: np.ndarray, control_data: np.ndarray):

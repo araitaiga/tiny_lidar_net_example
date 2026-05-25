@@ -1,4 +1,4 @@
-"""モデル学習コマンド。"""
+"""Model training command."""
 
 from pathlib import Path
 
@@ -11,9 +11,8 @@ def run_train(
     epochs: int,
     batch_size: int,
     learning_rate: float,
-    save_best: str | None = None,
 ) -> None:
-    """データファイルを読み込んで TinyLiDARNet を学習する。"""
+    """Load data files and train TinyLiDARNet."""
     missing_files = [f for f in data_files if not Path(f).exists()]
     if missing_files:
         print("Error: the following files were not found:")
@@ -28,5 +27,4 @@ def run_train(
         batch_size=batch_size,
         learning_rate=learning_rate,
         plot_loss=True,
-        save_best=save_best,
     )

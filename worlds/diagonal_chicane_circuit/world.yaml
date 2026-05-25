@@ -1,0 +1,73 @@
+# 中央島の対角にシケインを配置した周回コース。
+#
+# レイアウト概要:
+#   - 外周壁 (120 x 80, 厚さ 5) で四方を囲む
+#   - 中央島 (70 x 30) を中央に配置 (chicane_circuit と同じ寸法)
+#   - 中央島の対角 (北東・南西) からそれぞれ突き出すブロックでシケインを構成
+#       * 右上シケイン (北東): 中央島の北面から北へ突き出すブロック
+#         → 上側コリドール (東進中) で北に逃げる = 左折
+#       * 左下シケイン (南西): 中央島の南面から南へ突き出すブロック
+#         → 下側コリドール (西進中) で南に逃げる = 左折
+#   - chicane_circuit はシケインがコース中央 (x=55, 65) で点対称だったが、
+#     こちらはシケインがコース両端寄りに配置され、走行ライン全体の傾向が異なる
+#
+# コリドール幅 (実走行可能領域):
+#   下 / 上 = 20 m,  左 / 右 = 20 m (シケイン部分は 10 m に絞られる)
+world:
+  height: 80.0
+  width: 120.0
+
+obstacle:
+  # 外周壁（下）
+  - shape: {name: 'rectangle', length: 120.0, width: 5.0}
+    state: [60.0, 2.5, 0]
+  # 外周壁（上）
+  - shape: {name: 'rectangle', length: 120.0, width: 5.0}
+    state: [60.0, 77.5, 0]
+  # 外周壁（左）
+  - shape: {name: 'rectangle', length: 5.0, width: 70.0}
+    state: [2.5, 40.0, 0]
+  # 外周壁（右）
+  - shape: {name: 'rectangle', length: 5.0, width: 70.0}
+    state: [117.5, 40.0, 0]
+
+  # 中央島
+  - shape: {name: 'rectangle', length: 70.0, width: 30.0}
+    state: [60.0, 40.0, 0]
+  # → x=25..95, y=25..55 を占有
+
+  # 右上シケイン (北東): 中央島の北面から北へ突き出すブロック
+  # 上側コリドール (y=55..75) のうち y=55..65 を塞ぎ、東進中のクルマは
+  # y≈70 まで北へ逃げる必要がある = 左折
+  - shape: {name: 'rectangle', length: 14.0, width: 10.0}
+    state: [85.0, 60.0, 0]
+
+  # 左下シケイン (南西): 中央島の南面から南へ突き出すブロック
+  # 下側コリドール (y=5..25) のうち y=15..25 を塞ぎ、西進中のクルマは
+  # y≈10 まで南へ逃げる必要がある = 左折
+  - shape: {name: 'rectangle', length: 14.0, width: 10.0}
+    state: [35.0, 20.0, 0]
+
+  # 上側ストレートの小障害物 (シケインから離した位置)
+  - shape: {name: 'rectangle', length: 1.5, width: 1.5}
+    state: [40.0, 70.0, 0]
+  - shape: {name: 'rectangle', length: 2.0, width: 2.0}
+    state: [55.0, 68.0, 0]
+
+  # 下側ストレートの小障害物
+  - shape: {name: 'rectangle', length: 1.5, width: 1.5}
+    state: [70.0, 10.0, 0]
+  - shape: {name: 'rectangle', length: 2.0, width: 2.0}
+    state: [90.0, 12.0, 0]
+
+  # 左コリドールの小障害物
+  - shape: {name: 'rectangle', length: 1.5, width: 1.5}
+    state: [13.0, 30.0, 0]
+  - shape: {name: 'rectangle', length: 2.0, width: 2.0}
+    state: [10.0, 55.0, 0]
+
+  # 右コリドールの小障害物
+  - shape: {name: 'rectangle', length: 1.5, width: 1.5}
+    state: [108.0, 30.0, 0]
+  - shape: {name: 'rectangle', length: 2.0, width: 2.0}
+    state: [110.0, 50.0, 0]

@@ -1,4 +1,4 @@
-"""TinyLiDARNet 学習ループ。"""
+"""TinyLiDARNet training loop."""
 
 from pathlib import Path
 
@@ -11,9 +11,9 @@ from tiny_lidar_net.model import TinyLiDARNet
 
 
 class Trainer:
-    """TinyLiDARNet を Huber 損失で学習するシンプルな Trainer。
+    """A simple Trainer that trains TinyLiDARNet with the Huber loss.
 
-    公式実装に準拠したハイパラ:
+    Hyperparameters following the official implementation:
         Optimizer: Adam(lr=5e-5),  Loss: HuberLoss(δ=1.0),
         Batch: 64,  Epoch: 20
     """
@@ -38,7 +38,6 @@ class Trainer:
         epochs: int = 20,
         batch_size: int = 64,
         val_split: float = 0.2,
-        save_best: str | None = None,
     ) -> dict:
         val_size = max(int(len(dataset) * val_split), 1)
         train_size = len(dataset) - val_size
@@ -64,14 +63,6 @@ class Trainer:
             if val_loss < best_val_loss:
                 best_val_loss = val_loss
                 best_state = {k: v.clone() for k, v in self.model.state_dict().items()}
-                if save_best:
-                    torch.save(
-                        {
-                            "state_dict": best_state,
-                            "input_length": self.model.input_length,
-                        },
-                        save_best,
-                    )
 
             if (epoch + 1) % 10 == 0:
                 print(
@@ -145,9 +136,8 @@ def train_from_file(
     batch_size: int = 64,
     learning_rate: float = 5e-5,
     plot_loss: bool = True,
-    save_best: str | None = None,
 ) -> TinyLiDARNet:
-    """NPZファイルを読み込んで TinyLiDARNet を学習する。"""
+    """Load NPZ files and train TinyLiDARNet."""
     print("=" * 60)
     print("TinyLiDARNet Training")
     print("=" * 60)
@@ -171,7 +161,7 @@ def train_from_file(
 
     print()
     trainer = Trainer(model, learning_rate=learning_rate)
-    trainer.train(dataset, epochs=epochs, batch_size=batch_size, save_best=save_best)
+    trainer.train(dataset, epochs=epochs, batch_size=batch_size)
 
     model.save(model_output)
 

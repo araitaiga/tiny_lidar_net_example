@@ -1,4 +1,4 @@
-"""TinyLiDARNet のアーキテクチャ図を生成する (NVIDIA PilotNet 風 / 論文 Fig.3 風)。"""
+"""Generate an architecture diagram of TinyLiDARNet (in the style of NVIDIA PilotNet / the paper's Fig.3)."""
 from __future__ import annotations
 
 from pathlib import Path
@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 from matplotlib.patches import FancyArrowPatch, FancyBboxPatch, Polygon
 
 
-# -------- カラーパレット（学術的なブルーベース） --------
+# -------- Color palette (academic blue-based) --------
 C_INPUT = "#E8F1FA"
 C_INPUT_EDGE = "#1F4E79"
 C_CONV = "#4F81BD"
@@ -22,11 +22,11 @@ C_TEXT = "#1F3864"
 
 
 def draw_conv_block(ax, x_center, y_center, width, height, depth, label_top, label_bottom):
-    """3D 風の Conv 特徴マップを描画する。"""
-    # 奥行きを表現する平行四辺形の側面と上面
+    """Draw a Conv feature map in a 3D-like style."""
+    # Side and top parallelograms that represent depth
     half_w = width / 2
     half_h = height / 2
-    # 前面
+    # Front face
     front = mpatches.Rectangle(
         (x_center - half_w, y_center - half_h),
         width,
@@ -37,7 +37,7 @@ def draw_conv_block(ax, x_center, y_center, width, height, depth, label_top, lab
         zorder=3,
     )
     ax.add_patch(front)
-    # 上面（平行四辺形）
+    # Top face (parallelogram)
     top = Polygon(
         [
             (x_center - half_w, y_center + half_h),
@@ -51,7 +51,7 @@ def draw_conv_block(ax, x_center, y_center, width, height, depth, label_top, lab
         zorder=2,
     )
     ax.add_patch(top)
-    # 側面
+    # Side face
     side = Polygon(
         [
             (x_center + half_w, y_center + half_h),
@@ -66,7 +66,7 @@ def draw_conv_block(ax, x_center, y_center, width, height, depth, label_top, lab
     )
     ax.add_patch(side)
 
-    # ラベル
+    # Labels
     ax.text(
         x_center,
         y_center + half_h + depth * 0.5 + 0.35,
@@ -89,7 +89,7 @@ def draw_conv_block(ax, x_center, y_center, width, height, depth, label_top, lab
 
 
 def draw_fc_block(ax, x_center, y_center, height, neurons_label, role_label):
-    """全結合層を縦長の矩形で描画する。"""
+    """Draw a fully-connected layer as a tall rectangle."""
     width = 0.55
     rect = FancyBboxPatch(
         (x_center - width / 2, y_center - height / 2),
@@ -155,7 +155,7 @@ def main(output_path: Path) -> None:
     ax.set_aspect("equal")
     ax.axis("off")
 
-    # ------------- タイトル -------------
+    # ------------- Title -------------
     ax.text(
         9.5,
         9.0,
@@ -178,7 +178,7 @@ def main(output_path: Path) -> None:
 
     y_main = 3.8
 
-    # ------------- 入力 (LiDAR scan) -------------
+    # ------------- Input (LiDAR scan) -------------
     input_x = 0.9
     input_w = 0.5
     input_h = 4.8
@@ -224,8 +224,8 @@ def main(output_path: Path) -> None:
     )
 
     # ------------- Conv layers -------------
-    # (x_center, width_visual(時間軸の縮小), height_visual(チャンネル), depth)
-    # 視覚的に時間軸の縮小・チャンネル増加が伝わるよう調整
+    # (x_center, width_visual (time-axis shrinkage), height_visual (channels), depth)
+    # Tuned so the time-axis shrinkage and channel growth are visually conveyed
     conv_specs = [
         # name, x, time_visual_w, ch_visual_h, depth, top_label, bottom_label
         ("Conv1", 3.0, 1.3, 2.4, 0.45,
@@ -247,10 +247,10 @@ def main(output_path: Path) -> None:
 
     prev_right = input_x + input_w / 2
     for name, cx, w, h, d, ltop, lbot in conv_specs:
-        # 矢印
+        # Arrow
         draw_arrow(ax, prev_right + 0.05, cx - w / 2 - 0.05, y_main, text="ReLU")
         draw_conv_block(ax, cx, y_main, w, h, d, ltop, lbot)
-        prev_right = cx + w / 2 + d  # 奥行き分まで右に出ている
+        prev_right = cx + w / 2 + d  # extends to the right by the depth amount
 
     # ------------- Flatten -------------
     flat_x = 13.3
@@ -299,7 +299,7 @@ def main(output_path: Path) -> None:
     )
 
     # ------------- FC layers -------------
-    # height は neurons 数の log を意識して見やすく
+    # height is set with the log of the neuron count in mind for readability
     fc_specs = [
         # x, height, label, role
         (14.3, 4.6, "100", "FC1\n1792 → 100\nReLU + Dropout(0.2)"),
@@ -369,7 +369,7 @@ def main(output_path: Path) -> None:
         color=C_TEXT,
     )
 
-    # ------------- 凡例 -------------
+    # ------------- Legend -------------
     legend_y = -0.4
     legend_items = [
         (C_INPUT, C_INPUT_EDGE, "Input"),
@@ -401,7 +401,7 @@ def main(output_path: Path) -> None:
         )
         lx += 2.8
 
-    # ------------- 注釈 -------------
+    # ------------- Annotation -------------
     ax.text(
         9.5,
         -1.05,

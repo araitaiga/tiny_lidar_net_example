@@ -1,4 +1,4 @@
-"""学習データ収集コマンド: キーボードで車両を手動運転し、(LiDARスキャン, 制御値) のペアを記録する。"""
+"""Data collection command: drive the vehicle manually with the keyboard and record (LiDAR scan, control) pairs."""
 
 from pathlib import Path
 
@@ -7,7 +7,7 @@ import numpy as np
 import robosim2d
 from robosim2d.viz import RealtimeVisualizer
 
-from tiny_lidar_net import Control
+from tiny_lidar_net import DT, Control
 from tiny_lidar_net.control import MAX_SPEED, MAX_STEERING
 
 SPEED_STEP = 0.5
@@ -16,7 +16,7 @@ MAX_STEPS = 10000
 
 
 def run_collect(world_dir: str, output_file: str) -> None:
-    """手動運転で学習データを収集する。"""
+    """Collect training data via manual driving."""
     print("=" * 60)
     print("Data Collection Mode - Record training data via manual driving")
     print("=" * 60)
@@ -28,7 +28,7 @@ def run_collect(world_dir: str, output_file: str) -> None:
     sim = robosim2d.make(
         robot_file=world_dir / "robot.yaml",
         world_file=world_dir / "world.yaml",
-        dt=0.1,
+        dt=DT,
         collision_mode="stop",
     )
     viz = RealtimeVisualizer(sim)
@@ -74,8 +74,8 @@ def run_collect(world_dir: str, output_file: str) -> None:
 
             control = Control(steering=steering, speed=speed)
 
-            # speed=0 かつ steering=0 のフレームは「停止サンプル」が
-            # 過剰に蓄積してラベル分布を歪めるため記録しない。
+            # Skip recording frames where speed=0 and steering=0, since
+            # such "stationary samples" would otherwise dominate and skew the label distribution.
             if control.speed != 0.0 or control.steering != 0.0:
                 lidar_data.append(np.array(sim.get_lidar_scan(), copy=True))
                 control_data.append(control.to_array())
