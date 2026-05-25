@@ -1,4 +1,4 @@
-"""TinyLiDARNet example CLI."""
+"""TinyLidarNet example CLI."""
 
 import argparse
 from pathlib import Path
@@ -15,7 +15,7 @@ def ensure_output_dir(filepath: str) -> None:
 
 def create_parser() -> argparse.ArgumentParser:
     """Create the argument parser."""
-    parser = argparse.ArgumentParser(description="TinyLiDARNet example")
+    parser = argparse.ArgumentParser(description="TinyLidarNet example")
     subparsers = parser.add_subparsers(dest="command", help="Command")
 
     # Training data collection command (record via manual driving)
@@ -77,7 +77,7 @@ def create_parser() -> argparse.ArgumentParser:
 
     # Autonomous driving command (control with a trained model)
     autodrive_parser = subparsers.add_parser(
-        "autodrive", help="Run autodrive with a trained TinyLiDARNet"
+        "autodrive", help="Run autodrive with a trained TinyLidarNet"
     )
     autodrive_parser.add_argument(
         "--model",
@@ -142,7 +142,7 @@ def show_help():
     print("\nUsage:")
     print("  python main.py collect   -w worlds/circuit                                  # Collect training data via manual driving")
     print("  python main.py train     -d outputs/data1.npz outputs/data2.npz             # Train the model (supervised)")
-    print("  python main.py autodrive -w worlds/circuit -m outputs/tiny_lidar_net.pth    # Autodrive (TinyLiDARNet)")
+    print("  python main.py autodrive -w worlds/circuit -m outputs/tiny_lidar_net.pth    # Autodrive (TinyLidarNet)")
     print("  python main.py evaluate  -m outputs/tiny_lidar_net.pth                      # Evaluate across worlds (CW+CCW, headless)")
 
 

@@ -1,4 +1,4 @@
-"""TinyLiDARNet model definition."""
+"""TinyLidarNet model definition."""
 
 import numpy as np
 import torch
@@ -7,7 +7,7 @@ import torch.nn as nn
 from tiny_lidar_net.control import Control
 
 
-class TinyLiDARNet(nn.Module):
+class TinyLidarNet(nn.Module):
     """A 1D CNN that regresses control values from a LiDAR scan.
 
     The input length is variable via `input_length`. The FC1 size is determined
@@ -93,7 +93,7 @@ class TinyLiDARNet(nn.Module):
         print(f"Model saved: {filepath}")
 
     @classmethod
-    def load(cls, filepath: str, device: str = "cpu") -> "TinyLiDARNet":
+    def load(cls, filepath: str, device: str = "cpu") -> "TinyLidarNet":
         checkpoint = torch.load(filepath, map_location=device, weights_only=True)
         model = cls(input_length=checkpoint["input_length"])
         model.load_state_dict(checkpoint["state_dict"])

@@ -1,4 +1,4 @@
-"""Autodrive command: control the vehicle automatically with a trained TinyLiDARNet."""
+"""Autodrive command: control the vehicle automatically with a trained TinyLidarNet."""
 
 from pathlib import Path
 
@@ -6,22 +6,22 @@ import matplotlib.pyplot as plt
 import robosim2d
 from robosim2d.viz import RealtimeVisualizer
 
-from tiny_lidar_net import DT, TinyLiDARNet
+from tiny_lidar_net import DT, TinyLidarNet
 
 MAX_STEPS = 10000
 
 
 def run_autodrive(world_dir: str, model_file: str) -> None:
-    """Run autonomous driving with a trained TinyLiDARNet."""
+    """Run autonomous driving with a trained TinyLidarNet."""
     print("=" * 60)
-    print("Autodrive Mode - Automatic control via TinyLiDARNet")
+    print("Autodrive Mode - Automatic control via TinyLidarNet")
     print("=" * 60)
 
     if not Path(model_file).exists():
         print(f"Error: model file not found: {model_file}")
         return
 
-    model = TinyLiDARNet.load(model_file)
+    model = TinyLidarNet.load(model_file)
 
     world_dir = Path(world_dir)
     sim = robosim2d.make(

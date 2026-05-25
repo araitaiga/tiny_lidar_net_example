@@ -12,7 +12,7 @@ def run_train(
     batch_size: int,
     learning_rate: float,
 ) -> None:
-    """Load data files and train TinyLiDARNet."""
+    """Load data files and train TinyLidarNet."""
     missing_files = [f for f in data_files if not Path(f).exists()]
     if missing_files:
         print("Error: the following files were not found:")

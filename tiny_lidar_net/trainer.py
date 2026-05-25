@@ -1,4 +1,4 @@
-"""TinyLiDARNet training loop."""
+"""TinyLidarNet training loop."""
 
 from pathlib import Path
 
@@ -7,11 +7,11 @@ import torch.nn as nn
 from torch.utils.data import DataLoader, random_split
 
 from tiny_lidar_net.dataset import LidarDataset
-from tiny_lidar_net.model import TinyLiDARNet
+from tiny_lidar_net.model import TinyLidarNet
 
 
 class Trainer:
-    """A simple Trainer that trains TinyLiDARNet with the Huber loss.
+    """A simple Trainer that trains TinyLidarNet with the Huber loss.
 
     Hyperparameters following the official implementation:
         Optimizer: Adam(lr=5e-5),  Loss: HuberLoss(δ=1.0),
@@ -20,7 +20,7 @@ class Trainer:
 
     def __init__(
         self,
-        model: TinyLiDARNet,
+        model: TinyLidarNet,
         learning_rate: float = 5e-5,
         device: str | None = None,
     ):
@@ -140,10 +140,10 @@ def train_from_file(
     batch_size: int = 64,
     learning_rate: float = 5e-5,
     plot_loss: bool = True,
-) -> TinyLiDARNet:
-    """Load NPZ files and train TinyLiDARNet."""
+) -> TinyLidarNet:
+    """Load NPZ files and train TinyLidarNet."""
     print("=" * 60)
-    print("TinyLiDARNet Training")
+    print("TinyLidarNet Training")
     print("=" * 60)
 
     if isinstance(data_files, str):
@@ -159,7 +159,7 @@ def train_from_file(
     input_length = dataset.lidar.shape[-1]
     print(f"  Input length (LiDAR rays): {input_length}")
 
-    model = TinyLiDARNet(input_length=input_length)
+    model = TinyLidarNet(input_length=input_length)
     print("\nModel architecture:")
     print(model)
 

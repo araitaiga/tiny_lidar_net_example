@@ -1,7 +1,9 @@
 # tiny-lidar-net-example
 
 A minimal example of self-driving via 2D LiDAR simulation and supervised learning.
-Educational code that walks through how **TinyLiDARNet** (1D CNN) works.
+Educational code that walks through how **TinyLidarNet** (1D CNN) works.
+
+Reference: Zarrar et al., [*TinyLidarNet: 2D LiDAR-based End-to-End Deep Learning Model for F1TENTH Autonomous Racing*](https://arxiv.org/abs/2410.07447) (arXiv:2410.07447, 2024).
 
 The simulation environment uses [robosim2d](../robosim2d/),
 and you can experience the full flow of keyboard-driven data collection → CNN training → autonomous driving.
@@ -16,9 +18,9 @@ tiny-lidar-net-example/
 │   ├── train.py             # Train the CNN model
 │   ├── autodrive.py         # Run autonomous driving with a trained model
 │   └── evaluate.py          # Headless runs across multiple worlds × start positions, aggregating driving metrics
-├── tiny_lidar_net/          # TinyLiDARNet package
+├── tiny_lidar_net/          # TinyLidarNet package
 │   ├── control.py           # Control (NamedTuple)
-│   ├── model.py             # TinyLiDARNet (1D CNN)
+│   ├── model.py             # TinyLidarNet (1D CNN)
 │   ├── dataset.py           # LidarDataset (NPZ loader)
 │   └── trainer.py           # Training loop
 ├── worlds/
@@ -39,7 +41,7 @@ tiny-lidar-net-example/
 |---|---|
 | **robosim2d** | 2D simulation environment. Handles vehicle physics (Ackermann/DiffDrive models), LiDAR sensor (1081 rays), collision detection, and rendering |
 | **commands/** | CLI subcommands. Create and operate the robosim2d environment |
-| **tiny_lidar_net/** | PyTorch-based CNN (TinyLiDARNet) and training pipeline. Independent of the simulator |
+| **tiny_lidar_net/** | PyTorch-based CNN (TinyLidarNet) and training pipeline. Independent of the simulator |
 | **worlds/** | World definition directory (each world stores robot.yaml + world.yaml) |
 
 ## Setup
@@ -86,7 +88,7 @@ Frames where `speed=0` and `steering=0` are not recorded (to prevent label distr
 
 ### 2. Train the model (`train`)
 
-Train TinyLiDARNet on the collected data.
+Train TinyLidarNet on the collected data.
 
 ```bash
 python main.py train -d outputs/training_data.npz -o outputs/tiny_lidar_net.pth -e 100
@@ -215,10 +217,10 @@ collect (collect training data via manual driving)
   Keyboard → Control(steering, speed) → sim.step() → record LiDAR scan → .npz
 
 train (train the model)
-  .npz → LidarDataset → TinyLiDARNet (1D CNN) → .pth
+  .npz → LidarDataset → TinyLidarNet (1D CNN) → .pth
 
 autodrive (autonomous driving)
-  LiDAR scan → TinyLiDARNet.predict() → Control → sim.step()
+  LiDAR scan → TinyLidarNet.predict() → Control → sim.step()
 
 evaluate (quantitative evaluation)
   Each world × each start in eval.yaml → headless loop → aggregate distance / speed / StRMS table to stdout
@@ -235,7 +237,7 @@ evaluate (quantitative evaluation)
 
 To avoid ordering confusion, always use `Control.to_array()` / `Control.to_action()` for conversion.
 
-## TinyLiDARNet architecture
+## TinyLidarNet architecture
 
 A 1D CNN that outputs steering angle and speed from a LiDAR scan (1081 dimensions).
 

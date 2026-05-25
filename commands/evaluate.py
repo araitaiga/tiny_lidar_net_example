@@ -20,7 +20,7 @@ import robosim2d
 import yaml
 from robosim2d.viz import RealtimeVisualizer
 
-from tiny_lidar_net import DT, TinyLiDARNet
+from tiny_lidar_net import DT, TinyLidarNet
 
 MAX_STEPS_DEFAULT = 10000
 
@@ -42,7 +42,7 @@ def _load_starts(world_dir: Path) -> list[list[float]]:
 
 def _run_one(
     sim,
-    model: TinyLiDARNet,
+    model: TinyLidarNet,
     start_state: list[float],
     max_steps: int,
     viz: RealtimeVisualizer | None = None,
@@ -158,7 +158,7 @@ def run_evaluate(
         print(f"Error: model file not found: {model_file}")
         return
 
-    model = TinyLiDARNet.load(model_file)
+    model = TinyLidarNet.load(model_file)
 
     print(f"Model: {model_file}")
     print(f"Max steps per run: {max_steps}  (sim time = {max_steps * DT:.0f}s)")

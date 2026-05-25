@@ -5,7 +5,7 @@ build-backend = "hatchling.build"
 [project]
 name = "tiny-lidar-net-example"
 version = "0.1.0"
-description = "TinyLiDARNet の解説用最小2Dシミュレーターサンプル"
+description = "TinyLidarNet の解説用最小2Dシミュレーターサンプル"
 requires-python = ">=3.11"
 dependencies = [
     "numpy>=1.24.0",

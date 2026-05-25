@@ -1,4 +1,4 @@
-"""Generate an architecture diagram of TinyLiDARNet (in the style of NVIDIA PilotNet / the paper's Fig.3)."""
+"""Generate an architecture diagram of TinyLidarNet (in the style of NVIDIA PilotNet / the paper's Fig.3)."""
 from __future__ import annotations
 
 from pathlib import Path
@@ -159,7 +159,7 @@ def main(output_path: Path) -> None:
     ax.text(
         9.5,
         9.0,
-        "TinyLiDARNet : 1D CNN Architecture",
+        "TinyLidarNet : 1D CNN Architecture",
         ha="center",
         va="center",
         fontsize=16,
