@@ -47,8 +47,9 @@ def _run_one(
     max_steps: int,
     viz: RealtimeVisualizer | None = None,
     label: str = "",
-) -> dict:
-    """Run a single trial and return a metrics dict.
+) -> dict | None:
+    """Run a single trial and return a metrics dict, or ``None`` if the visualization
+    window was closed mid-run (the trial should be discarded by the caller).
 
     Returned keys: result ("collision" | "stuck" | "survived"), steps,
                    distance, avg_speed, max_speed, steering_rms
@@ -69,6 +70,7 @@ def _run_one(
 
     collided = False
     stuck = False
+    aborted = False
     final_step = 0
 
     for step in range(max_steps):
@@ -94,7 +96,8 @@ def _run_one(
             )
             plt.pause(0.01)
             if not plt.fignum_exists(viz.fig.number):
-                # If the window is closed, abort the current trial
+                # Window closed mid-trial: signal abort so caller discards this incomplete run
+                aborted = True
                 break
 
         if collision:
@@ -109,6 +112,9 @@ def _run_one(
             if disp < STUCK_DISPLACEMENT:
                 stuck = True
                 break
+
+    if aborted:
+        return None
 
     avg_speed = mean(speeds) if speeds else 0.0
     max_speed = max(speeds) if speeds else 0.0
@@ -179,15 +185,16 @@ def run_evaluate(
         for i, start in enumerate(starts):
             label = f"{world_dir.name} start={i}"
             metrics = _run_one(sim, model, start, max_steps, viz=viz, label=label)
+            if metrics is None:
+                # Visualization window was closed mid-trial: discard this incomplete
+                # result and abort the remaining trials instead of polluting the summary.
+                aborted = True
+                break
             rows.append({"world": world_dir.name, "start": i, **metrics})
             print(
                 f"  {world_dir.name} start={i}: {metrics['result']} "
                 f"step={metrics['steps']} dist={metrics['distance']:.1f}m"
             )
-            if viz is not None and not plt.fignum_exists(viz.fig.number):
-                # If the window was closed during visualization, abort remaining trials
-                aborted = True
-                break
 
         if viz is not None:
             viz.close()

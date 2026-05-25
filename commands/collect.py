@@ -66,6 +66,7 @@ def run_collect(world_dir: str, output_file: str) -> None:
 
     lidar_data: list[np.ndarray] = []
     control_data: list[np.ndarray] = []
+    collided = False
 
     try:
         for _ in range(MAX_STEPS):
@@ -76,14 +77,22 @@ def run_collect(world_dir: str, output_file: str) -> None:
 
             # Skip recording frames where speed=0 and steering=0, since
             # such "stationary samples" would otherwise dominate and skew the label distribution.
-            if control.speed != 0.0 or control.steering != 0.0:
+            # Also skip while in a collision state: with collision_mode="stop" the vehicle is
+            # halted but key presses still produce non-zero labels, which would pair the same
+            # post-collision LiDAR scan with arbitrary controls and pollute the dataset.
+            if not collided and (control.speed != 0.0 or control.steering != 0.0):
                 lidar_data.append(np.array(sim.get_lidar_scan(), copy=True))
                 control_data.append(control.to_array())
 
-            sim.step(control.to_action())
+            _, collision, _ = sim.step(control.to_action())
+            if collision and not collided:
+                collided = True
+                print("\nCollision detected. Recording stopped. Press Q/Esc to finish.")
+
+            title_suffix = "  [COLLIDED]" if collided else ""
             viz.render(
                 title=f"Simulation Time: {sim.time:.2f}s  |  "
-                f"Speed: {speed:.2f}  Steering: {steering:.2f}"
+                f"Speed: {speed:.2f}  Steering: {steering:.2f}{title_suffix}"
             )
             plt.pause(0.01)
 

@@ -33,18 +33,6 @@ class Control(NamedTuple):
         """Convert to a ``[speed, steering]`` array used by robosim2d ``sim.step()``."""
         return np.array([self.speed, self.steering], dtype=np.float32)
 
-    def to_normalized(self) -> np.ndarray:
-        """Return a ``[steering, speed]`` array normalized to the tanh output range [-1, 1]."""
-        return np.array(
-            [self.steering / MAX_STEERING, self.speed / MAX_SPEED],
-            dtype=np.float32,
-        )
-
-    @classmethod
-    def from_array(cls, arr) -> "Control":
-        """Restore from a training-data ``[steering, speed]`` array."""
-        return cls(steering=float(arr[0]), speed=float(arr[1]))
-
     @classmethod
     def from_normalized(cls, arr) -> "Control":
         """De-normalize a tanh output ``[steering, speed]`` (∈ [-1, 1]) to physical values."""

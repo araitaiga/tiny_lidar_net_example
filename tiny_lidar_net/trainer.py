@@ -39,6 +39,10 @@ class Trainer:
         batch_size: int = 64,
         val_split: float = 0.2,
     ) -> dict:
+        if len(dataset) < 2:
+            raise ValueError(
+                f"Dataset must contain at least 2 samples for train/val split, got {len(dataset)}"
+            )
         val_size = max(int(len(dataset) * val_split), 1)
         train_size = len(dataset) - val_size
         train_dataset, val_dataset = random_split(dataset, [train_size, val_size])
