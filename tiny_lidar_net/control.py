@@ -18,24 +18,24 @@ class Control(NamedTuple):
         - Training data (.npz) / model output tensor: [steering, speed]
         - robosim2d ``sim.step()`` action array:       [speed, steering]
 
-    Use ``to_array()`` / ``to_action()`` for conversions, so the ordering
+    Use ``to_training_label()`` / ``to_robot_action()`` for conversions, so the ordering
     is centralized in this class and cannot be mixed up.
     """
 
     steering: float
     speed: float
 
-    def to_array(self) -> np.ndarray:
-        """Convert to a ``[steering, speed]`` array used for training-data storage."""
+    def to_training_label(self) -> np.ndarray:
+        """Convert to a ``[steering, speed]`` label array stored in the training-data ``.npz``."""
         return np.array([self.steering, self.speed], dtype=np.float32)
 
-    def to_action(self) -> np.ndarray:
-        """Convert to a ``[speed, steering]`` array used by robosim2d ``sim.step()``."""
+    def to_robot_action(self) -> np.ndarray:
+        """Convert to a ``[speed, steering]`` action array consumed by robosim2d ``sim.step()``."""
         return np.array([self.speed, self.steering], dtype=np.float32)
 
     @classmethod
-    def from_normalized(cls, arr) -> "Control":
-        """De-normalize a tanh output ``[steering, speed]`` (∈ [-1, 1]) to physical values."""
+    def from_model_output(cls, arr) -> "Control":
+        """De-normalize a model tanh output ``[steering, speed]`` (∈ [-1, 1]) to physical values."""
         return cls(
             steering=float(arr[0]) * MAX_STEERING,
             speed=float(arr[1]) * MAX_SPEED,

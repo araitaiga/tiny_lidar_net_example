@@ -48,7 +48,7 @@ def run_autodrive(world_dir: str, model_file: str) -> None:
             scan = sim.get_lidar_scan()
             control = model.predict(scan)
 
-            _, collision, _ = sim.step(control.to_action())
+            _, collision, _ = sim.step(control.to_robot_action())
             viz.render(
                 title=f"Simulation Time: {sim.time:.2f}s  |  "
                 f"Speed: {control.speed:.2f}  Steering: {control.steering:.2f}"

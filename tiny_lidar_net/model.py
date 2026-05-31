@@ -10,9 +10,10 @@ from tiny_lidar_net.control import Control
 class TinyLidarNet(nn.Module):
     """A 1D CNN that regresses control values from a LiDAR scan.
 
-    The input length is variable via `input_length`. The FC1 size is determined
-    dynamically from the time-axis length after the five Conv layers
-    (equivalent to the lazy construction in the official Keras implementation).
+    The input length is fixed at 1081 (TinyLidarNetL), so FC1 takes the flattened
+    length 64 * 28 = 1792 directly. To support a variable input length, replace
+    ``self.fc1`` with ``nn.LazyLinear(100)`` (in_features are inferred on the first
+    forward pass, equivalent to the lazy build in the official Keras implementation).
 
     Architecture (input_length=1081 example):
         Input: (batch, 1, 1081)  LiDAR scan
@@ -27,21 +28,12 @@ class TinyLidarNet(nn.Module):
             FC(50 -> 10)    + ReLU
             FC(10 -> 2)     + tanh   # Output range [-1, 1] (training labels are normalized too)
         Output: (batch, 2)  [steering_norm, speed_norm]  ∈ [-1, 1]
-            At inference time, ``Control.from_normalized`` converts back to physical values.
+            At inference time, ``Control.from_model_output`` converts back to physical values.
     """
 
-    _CONV_PARAMS = [(10, 4), (8, 4), (4, 2), (3, 1), (3, 1)]
-
-    @classmethod
-    def _conv_out_len(cls, n: int) -> int:
-        """Compute the time-axis length after the five Conv1d layers."""
-        for k, s in cls._CONV_PARAMS:
-            n = (n - k) // s + 1
-        return n
-
-    def __init__(self, input_length: int = 1081):
+    def __init__(self):
         super().__init__()
-        self.input_length = input_length
+        self.input_length = 1081  # Fixed input length (TinyLidarNetL)
 
         self.conv1 = nn.Conv1d(1, 24, kernel_size=10, stride=4)
         self.conv2 = nn.Conv1d(24, 36, kernel_size=8, stride=4)
@@ -50,7 +42,10 @@ class TinyLidarNet(nn.Module):
         self.conv5 = nn.Conv1d(64, 64, kernel_size=3, stride=1)
 
         self.flatten = nn.Flatten()
-        flat_len = 64 * self._conv_out_len(input_length)
+        # With input length 1081, the time-axis length after conv5 is 28, so the
+        # flattened length is 64 * 28 = 1792. To support a variable input length,
+        # use nn.LazyLinear(100) for fc1 (in_features inferred on the first forward).
+        flat_len = 64 * 28
         self.fc1 = nn.Linear(flat_len, 100)
         self.fc2 = nn.Linear(100, 50)
         self.fc3 = nn.Linear(50, 10)
@@ -83,7 +78,7 @@ class TinyLidarNet(nn.Module):
         with torch.no_grad():
             x = torch.from_numpy(lidar_scan).float().view(1, 1, -1).to(device)
             output = self(x)
-        return Control.from_normalized(output[0].cpu().numpy())
+        return Control.from_model_output(output[0].cpu().numpy())
 
     def save(self, filepath: str) -> None:
         torch.save(
@@ -95,7 +90,7 @@ class TinyLidarNet(nn.Module):
     @classmethod
     def load(cls, filepath: str, device: str = "cpu") -> "TinyLidarNet":
         checkpoint = torch.load(filepath, map_location=device, weights_only=True)
-        model = cls(input_length=checkpoint["input_length"])
+        model = cls()  # input length is fixed at 1081 (checkpoint's input_length is ignored)
         model.load_state_dict(checkpoint["state_dict"])
         model.to(device)
         model.eval()

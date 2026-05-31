@@ -76,7 +76,7 @@ def _run_one(
     for step in range(max_steps):
         scan = sim.get_lidar_scan()
         control = model.predict(scan)
-        _, collision, info = sim.step(control.to_action())
+        _, collision, info = sim.step(control.to_robot_action())
 
         dx = info["x"] - prev_x
         dy = info["y"] - prev_y

@@ -156,10 +156,9 @@ def train_from_file(
     else:
         dataset = LidarDataset.from_files(data_files)
 
-    input_length = dataset.lidar.shape[-1]
-    print(f"  Input length (LiDAR rays): {input_length}")
+    print(f"  Input length (LiDAR rays): {dataset.lidar.shape[-1]}")
 
-    model = TinyLidarNet(input_length=input_length)
+    model = TinyLidarNet()  # input length is fixed at 1081
     print("\nModel architecture:")
     print(model)
 

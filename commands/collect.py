@@ -82,9 +82,9 @@ def run_collect(world_dir: str, output_file: str) -> None:
             # post-collision LiDAR scan with arbitrary controls and pollute the dataset.
             if not collided and (control.speed != 0.0 or control.steering != 0.0):
                 lidar_data.append(np.array(sim.get_lidar_scan(), copy=True))
-                control_data.append(control.to_array())
+                control_data.append(control.to_training_label())
 
-            _, collision, _ = sim.step(control.to_action())
+            _, collision, _ = sim.step(control.to_robot_action())
             if collision and not collided:
                 collided = True
                 print("\nCollision detected. Recording stopped. Press Q/Esc to finish.")
