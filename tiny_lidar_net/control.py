@@ -11,6 +11,30 @@ MAX_STEERING = 0.5  # [rad]
 MAX_SPEED = 5.0     # [m/s]
 
 
+def normalize_labels(labels: np.ndarray) -> np.ndarray:
+    """Normalize physical ``[steering, speed]`` labels into the tanh range ``[-1, 1]``.
+
+    Accepts either a single sample ``(2,)`` or a batch ``(N, 2)``; the last axis is
+    treated as ``[steering, speed]``. Returns a new float32 array.
+    """
+    out = labels.astype(np.float32).copy()
+    out[..., 0] /= MAX_STEERING
+    out[..., 1] /= MAX_SPEED
+    return out
+
+
+def denormalize_labels(labels: np.ndarray) -> np.ndarray:
+    """De-normalize ``[steering, speed]`` values in ``[-1, 1]`` back to physical values.
+
+    Inverse of :func:`normalize_labels`. Accepts ``(2,)`` or ``(N, 2)``; the last axis
+    is treated as ``[steering, speed]``. Returns a new float32 array.
+    """
+    out = labels.astype(np.float32).copy()
+    out[..., 0] *= MAX_STEERING
+    out[..., 1] *= MAX_SPEED
+    return out
+
+
 class Control(NamedTuple):
     """Vehicle control values (steering angle and speed).
 
@@ -36,7 +60,5 @@ class Control(NamedTuple):
     @classmethod
     def from_model_output(cls, arr) -> "Control":
         """De-normalize a model tanh output ``[steering, speed]`` (∈ [-1, 1]) to physical values."""
-        return cls(
-            steering=float(arr[0]) * MAX_STEERING,
-            speed=float(arr[1]) * MAX_SPEED,
-        )
+        steering, speed = denormalize_labels(np.asarray(arr))
+        return cls(steering=float(steering), speed=float(speed))

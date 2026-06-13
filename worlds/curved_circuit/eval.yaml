@@ -1,9 +1,9 @@
-# 評価用スタート位置のリスト
-# 各エントリは [x, y, yaw_rad, steering_initial]
-# yaw はラジアン (0=東, π/2=北, π=西, -π/2=南)
-# 時計回り (CW) と反時計回り (CCW) の両方向を評価する
+# List of start positions for evaluation
+# Each entry is [x, y, yaw_rad, steering_initial]
+# yaw is in radians (0=east, pi/2=north, pi=west, -pi/2=south)
+# Evaluate both clockwise (CW) and counterclockwise (CCW) directions
 starts:
-  - [14.0, 40.0, 1.5708, 0.0]   # 左コリドール中央、北向き → CW
-  - [14.0, 40.0, -1.5708, 0.0]  # 左コリドール中央、南向き → CCW
-  - [60.0, 70.0, 0.0, 0.0]      # 上コリドール、東向き → CW
-  - [60.0, 70.0, 3.14159, 0.0]  # 上コリドール、西向き → CCW
+  - [14.0, 40.0, 1.5708, 0.0]   # left corridor center, facing north -> CW
+  - [14.0, 40.0, -1.5708, 0.0]  # left corridor center, facing south -> CCW
+  - [60.0, 70.0, 0.0, 0.0]      # top corridor, facing east -> CW
+  - [60.0, 70.0, 3.14159, 0.0]  # top corridor, facing west -> CCW

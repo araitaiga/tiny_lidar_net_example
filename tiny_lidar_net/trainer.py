@@ -2,12 +2,12 @@
 
 from pathlib import Path
 
-import torch
-import torch.nn as nn
-from torch.utils.data import DataLoader, random_split
-
 from tiny_lidar_net.dataset import LidarDataset
 from tiny_lidar_net.model import TinyLidarNet
+import torch
+import torch.nn as nn
+from torch.utils.data import DataLoader
+from torch.utils.data import random_split
 
 
 class Trainer:
@@ -66,6 +66,7 @@ class Trainer:
 
             if val_loss < best_val_loss:
                 best_val_loss = val_loss
+                # Clone the current weights so later epochs do not overwrite this snapshot.
                 best_state = {k: v.clone() for k, v in self.model.state_dict().items()}
 
             if (epoch + 1) % 10 == 0:
@@ -87,9 +88,11 @@ class Trainer:
         }
 
     def _train_one_epoch(self, loader: DataLoader, n_samples: int) -> float:
+        # Set model to training mode (enables dropout, etc.)
         self.model.train()
         total_loss = 0.0
         for lidar, control in loader:
+            # Move data to the same device as the model
             lidar = lidar.to(self.device)
             control = control.to(self.device)
 
@@ -99,10 +102,13 @@ class Trainer:
             loss.backward()
             self.optimizer.step()
 
+            # Accumulate the batch loss sum (mean loss x batch size) so the final
+            # average is unaffected by uneven batch sizes (e.g. a smaller last batch).
             total_loss += loss.item() * lidar.size(0)
         return total_loss / n_samples
 
     def _validate(self, loader: DataLoader, n_samples: int) -> float:
+        # Set model to evaluation mode (disables dropout, etc.)
         self.model.eval()
         total_loss = 0.0
         with torch.no_grad():
@@ -150,11 +156,7 @@ def train_from_file(
         data_files = [data_files]
 
     print(f"\nLoading data: {len(data_files)} file(s)")
-    if len(data_files) == 1:
-        dataset = LidarDataset.from_file(data_files[0])
-        print(f"  Samples: {len(dataset)}")
-    else:
-        dataset = LidarDataset.from_files(data_files)
+    dataset = LidarDataset.from_files(data_files)
 
     print(f"  Input length (LiDAR rays): {dataset.lidar.shape[-1]}")
 

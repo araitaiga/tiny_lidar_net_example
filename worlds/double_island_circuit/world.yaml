@@ -1,50 +1,50 @@
-# 中央島を左右 2 つに分割した周回コース。中央に南北方向の貫通通路がある。
+# Loop course with the central island split into left and right halves. A north-south through passage runs down the center.
 #
-# レイアウト概要:
-#   - 外周壁 (120 x 80, 厚さ 5) で四方を囲む
-#   - 左中央島 (30 x 25) を (35, 40) に配置
-#   - 右中央島 (30 x 25) を (85, 40) に配置
-#   - 島と島の間 (x=50..70) は南北方向の貫通通路 (幅 20 m)
-#   - 外周のみを反時計回り / 時計回りで走るパターンに加え、
-#     中央通路を抜けて 8 の字状に走行することも可能
-#   - 左折と右折の両方が発生するため、学習データの偏りが緩和される
+# Layout overview:
+#   - Surrounded on all four sides by an outer wall (120 x 80, thickness 5)
+#   - A left central island (30 x 25) is placed at (35, 40)
+#   - A right central island (30 x 25) is placed at (85, 40)
+#   - The gap between the islands (x=50..70) is a north-south through passage (20 m wide)
+#   - In addition to driving the outer loop counterclockwise / clockwise,
+#     it is also possible to drive a figure-eight by passing through the central passage
+#   - Both left and right turns occur, which reduces bias in the training data
 #
-# コリドール幅 (実走行可能領域):
-#   下 / 上 = 22.5 m,  左 / 右 = 15 m,  中央通路 = 20 m
+# Corridor width (actual drivable area):
+#   bottom / top = 22.5 m, left / right = 15 m, central passage = 20 m
 world:
   height: 80.0
   width: 120.0
 
 obstacle:
-  # 外周壁（下）
+  # Outer wall (bottom)
   - shape: { name: "rectangle", length: 120.0, width: 5.0 }
     state: [60.0, 2.5, 0]
-  # 外周壁（上）
+  # Outer wall (top)
   - shape: { name: "rectangle", length: 120.0, width: 5.0 }
     state: [60.0, 77.5, 0]
-  # 外周壁（左）
+  # Outer wall (left)
   - shape: { name: "rectangle", length: 5.0, width: 70.0 }
     state: [2.5, 40.0, 0]
-  # 外周壁（右）
+  # Outer wall (right)
   - shape: { name: "rectangle", length: 5.0, width: 70.0 }
     state: [117.5, 40.0, 0]
 
-  # 左中央島
+  # Left central island
   - shape: { name: "rectangle", length: 30.0, width: 25.0 }
     state: [35.0, 40.0, 0]
-  # → x=20..50, y=27.5..52.5 を占有
+  # -> occupies x=20..50, y=27.5..52.5
 
-  # 右中央島
+  # Right central island
   - shape: { name: "rectangle", length: 30.0, width: 25.0 }
     state: [85.0, 40.0, 0]
-  # → x=70..100, y=27.5..52.5 を占有
+  # -> occupies x=70..100, y=27.5..52.5
 
-  # 中央の障害物（通路中央でラインを左右に振らせる）
+  # Central obstacle (swings the line left and right at the center of the passage)
   - shape: { name: "rectangle", length: 30.0, width: 5.0 }
     state: [60.0, 40.0, 0]
 
 
-  # 上側ストレートの小障害物
+  # Small obstacles on the top straight
   - shape: { name: "rectangle", length: 1.5, width: 1.5 }
     state: [25.0, 68.0, 0]
   - shape: { name: "rectangle", length: 1.5, width: 1.5 }
@@ -52,7 +52,7 @@ obstacle:
   - shape: { name: "rectangle", length: 1.5, width: 1.5 }
     state: [95.0, 68.0, 0]
 
-  # 下側ストレートの小障害物
+  # Small obstacles on the bottom straight
   - shape: { name: "rectangle", length: 1.5, width: 1.5 }
     state: [25.0, 12.0, 0]
   - shape: { name: "rectangle", length: 1.5, width: 1.5 }
@@ -60,10 +60,10 @@ obstacle:
   - shape: { name: "rectangle", length: 1.5, width: 1.5 }
     state: [95.0, 12.0, 0]
 
-  # 左コリドールの小障害物
+  # Small obstacles in the left corridor
   - shape: { name: "rectangle", length: 1.5, width: 1.5 }
     state: [12.0, 40.0, 0]
 
-  # 右コリドールの小障害物
+  # Small obstacles in the right corridor
   - shape: { name: "rectangle", length: 1.5, width: 1.5 }
     state: [108.0, 40.0, 0]

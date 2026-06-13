@@ -3,19 +3,19 @@ world:
   width: 120.0
 
 obstacle:
-  # 外周壁（下）
+  # Outer wall (bottom)
   - shape: {name: 'rectangle', length: 100.0, width: 5.0}
     state: [60.0, 2.5, 0]
-  # 外周壁（上）
+  # Outer wall (top)
   - shape: {name: 'rectangle', length: 100.0, width: 5.0}
     state: [60.0, 77.5, 0]
-  # 外周壁（左）
+  # Outer wall (left)
   - shape: {name: 'rectangle', length: 5.0, width: 60.0}
     state: [2.5, 40.0, 0]
-  # 外周壁（右）
+  # Outer wall (right)
   - shape: {name: 'rectangle', length: 5.0, width: 60.0}
     state: [117.5, 40.0, 0]
-  # 四隅のブロック
+  # Corner blocks at the four corners
   - shape: {name: 'rectangle', length: 8.0, width: 8.0}
     state: [9.0, 9.0, 0]
   - shape: {name: 'rectangle', length: 8.0, width: 8.0}
@@ -24,19 +24,19 @@ obstacle:
     state: [111.0, 9.0, 0]
   - shape: {name: 'rectangle', length: 8.0, width: 8.0}
     state: [111.0, 71.0, 0]
-  # 内周壁（下）
+  # Inner wall (bottom)
   - shape: {name: 'rectangle', length: 70.0, width: 5.0}
     state: [60.0, 22.5, 0]
-  # 内周壁（上）
+  # Inner wall (top)
   - shape: {name: 'rectangle', length: 70.0, width: 5.0}
     state: [60.0, 57.5, 0]
-  # 内周壁（左）
+  # Inner wall (left)
   - shape: {name: 'rectangle', length: 5.0, width: 30.0}
     state: [22.5, 40.0, 0]
-  # 内周壁（右）
+  # Inner wall (right)
   - shape: {name: 'rectangle', length: 5.0, width: 30.0}
     state: [97.5, 40.0, 0]
-  # 内周コーナーブロック
+  # Inner corner blocks
   - shape: {name: 'rectangle', length: 5.0, width: 5.0}
     state: [27.5, 27.5, 0]
   - shape: {name: 'rectangle', length: 5.0, width: 5.0}
@@ -45,30 +45,30 @@ obstacle:
     state: [92.5, 27.5, 0]
   - shape: {name: 'rectangle', length: 5.0, width: 5.0}
     state: [92.5, 52.5, 0]
-  # コース上の小さな障害物（下側ストレート）
+  # Small obstacles on the course (bottom straight)
   - shape: {name: 'rectangle', length: 1.5, width: 1.5}
     state: [45.0, 14.0, 0]
   - shape: {name: 'rectangle', length: 2.0, width: 2.0}
     state: [60.0, 15.5, 0]
   - shape: {name: 'rectangle', length: 1.5, width: 1.5}
     state: [75.0, 13.5, 0]
-  # コース上の小さな障害物（上側ストレート）
+  # Small obstacles on the course (top straight)
   - shape: {name: 'rectangle', length: 2.0, width: 2.0}
     state: [50.0, 71.0, 0]
   - shape: {name: 'rectangle', length: 1.5, width: 1.5}
     state: [70.0, 65.0, 0]
   - shape: {name: 'rectangle', length: 1.5, width: 2.0}
     state: [40.0, 64.0, 0]
-  # コース上の小さな障害物（左側ストレート）
+  # Small obstacles on the course (left straight)
   - shape: {name: 'rectangle', length: 1.5, width: 1.5}
     state: [9.0, 35.0, 0]
   - shape: {name: 'rectangle', length: 2.0, width: 2.0}
     state: [8.0, 50.0, 0]
-  # コース上の小さな障害物（右側ストレート）
+  # Small obstacles on the course (right straight)
   - shape: {name: 'rectangle', length: 1.5, width: 1.5}
     state: [105.0, 32.0, 0]
   - shape: {name: 'rectangle', length: 2.0, width: 2.0}
     state: [114.0, 48.0, 0]
-  # 中央のブロック
+  # Central block
   - shape: {name: 'rectangle', length: 8.0, width: 8.0}
     state: [60.0, 40.0, 0]

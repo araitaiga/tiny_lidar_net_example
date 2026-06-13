@@ -4,7 +4,7 @@ import numpy as np
 import torch
 from torch.utils.data import Dataset
 
-from tiny_lidar_net.control import MAX_SPEED, MAX_STEERING
+from tiny_lidar_net.control import normalize_labels
 
 
 class LidarDataset(Dataset):
@@ -21,22 +21,13 @@ class LidarDataset(Dataset):
 
     def __init__(self, lidar_data: np.ndarray, control_data: np.ndarray):
         self.lidar = torch.from_numpy(lidar_data).float()
-
-        normalized = control_data.astype(np.float32).copy()
-        normalized[:, 0] /= MAX_STEERING
-        normalized[:, 1] /= MAX_SPEED
-        self.control = torch.from_numpy(normalized).float()
+        self.control = torch.from_numpy(normalize_labels(control_data)).float()
 
     def __len__(self) -> int:
         return len(self.lidar)
 
     def __getitem__(self, idx: int) -> tuple[torch.Tensor, torch.Tensor]:
         return self.lidar[idx].unsqueeze(0), self.control[idx]
-
-    @classmethod
-    def from_file(cls, filepath: str) -> "LidarDataset":
-        data = np.load(filepath)
-        return cls(data["lidar"], data["control"])
 
     @classmethod
     def from_files(cls, filepaths: list[str]) -> "LidarDataset":

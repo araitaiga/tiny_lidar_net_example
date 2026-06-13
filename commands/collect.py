@@ -4,11 +4,13 @@ from pathlib import Path
 
 import matplotlib.pyplot as plt
 import numpy as np
+from tiny_lidar_net import Control
+from tiny_lidar_net import DT
+from tiny_lidar_net.control import MAX_SPEED
+from tiny_lidar_net.control import MAX_STEERING
+
 import robosim2d
 from robosim2d.viz import RealtimeVisualizer
-
-from tiny_lidar_net import DT, Control
-from tiny_lidar_net.control import MAX_SPEED, MAX_STEERING
 
 SPEED_STEP = 0.5
 STEERING_STEP = 0.05
@@ -70,6 +72,7 @@ def run_collect(world_dir: str, output_file: str) -> None:
 
     try:
         for _ in range(MAX_STEPS):
+            # fignum_exists: stop when the window is closed
             if not is_running or not plt.fignum_exists(viz.fig.number):
                 break
 

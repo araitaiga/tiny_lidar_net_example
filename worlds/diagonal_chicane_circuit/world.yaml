@@ -1,72 +1,72 @@
-# 中央島の対角にシケインを配置した周回コース。
+# Loop course with chicanes placed at diagonal corners of the central island.
 #
-# レイアウト概要:
-#   - 外周壁 (120 x 80, 厚さ 5) で四方を囲む
-#   - 中央島 (70 x 30) を中央に配置 (chicane_circuit と同じ寸法)
-#   - 中央島の対角 (北東・南西) からそれぞれ突き出すブロックでシケインを構成
-#       * 右上シケイン (北東): 中央島の北面から北へ突き出すブロック
-#         → 上側コリドール (東進中) で北に逃げる = 左折
-#       * 左下シケイン (南西): 中央島の南面から南へ突き出すブロック
-#         → 下側コリドール (西進中) で南に逃げる = 左折
-#   - chicane_circuit はシケインがコース中央 (x=55, 65) で点対称だったが、
-#     こちらはシケインがコース両端寄りに配置され、走行ライン全体の傾向が異なる
+# Layout overview:
+#   - Surrounded on all four sides by an outer wall (120 x 80, thickness 5)
+#   - A central island (70 x 30) is placed at the center (same dimensions as chicane_circuit)
+#   - Chicanes are formed by blocks protruding from diagonal corners (northeast and southwest) of the central island
+#       * Upper-right chicane (northeast): a block protruding north from the north face of the central island
+#         -> escape north in the upper corridor (heading east) = left turn
+#       * Lower-left chicane (southwest): a block protruding south from the south face of the central island
+#         -> escape south in the lower corridor (heading west) = left turn
+#   - In chicane_circuit the chicanes were point-symmetric at the course center (x=55, 65),
+#     whereas here the chicanes are placed toward the two ends of the course, giving a different overall driving line
 #
-# コリドール幅 (実走行可能領域):
-#   下 / 上 = 20 m,  左 / 右 = 20 m (シケイン部分は 10 m に絞られる)
+# Corridor width (actual drivable area):
+#   bottom / top = 20 m, left / right = 20 m (narrowed to 10 m at the chicane sections)
 world:
   height: 80.0
   width: 120.0
 
 obstacle:
-  # 外周壁（下）
+  # Outer wall (bottom)
   - shape: {name: 'rectangle', length: 120.0, width: 5.0}
     state: [60.0, 2.5, 0]
-  # 外周壁（上）
+  # Outer wall (top)
   - shape: {name: 'rectangle', length: 120.0, width: 5.0}
     state: [60.0, 77.5, 0]
-  # 外周壁（左）
+  # Outer wall (left)
   - shape: {name: 'rectangle', length: 5.0, width: 70.0}
     state: [2.5, 40.0, 0]
-  # 外周壁（右）
+  # Outer wall (right)
   - shape: {name: 'rectangle', length: 5.0, width: 70.0}
     state: [117.5, 40.0, 0]
 
-  # 中央島
+  # Central island
   - shape: {name: 'rectangle', length: 70.0, width: 30.0}
     state: [60.0, 40.0, 0]
-  # → x=25..95, y=25..55 を占有
+  # -> occupies x=25..95, y=25..55
 
-  # 右上シケイン (北東): 中央島の北面から北へ突き出すブロック
-  # 上側コリドール (y=55..75) のうち y=55..65 を塞ぎ、東進中のクルマは
-  # y≈70 まで北へ逃げる必要がある = 左折
+  # Upper-right chicane (northeast): a block protruding north from the north face of the central island
+  # It blocks y=55..65 of the upper corridor (y=55..75), so a vehicle heading east
+  # must escape north to y~=70 = left turn
   - shape: {name: 'rectangle', length: 14.0, width: 10.0}
     state: [85.0, 60.0, 0]
 
-  # 左下シケイン (南西): 中央島の南面から南へ突き出すブロック
-  # 下側コリドール (y=5..25) のうち y=15..25 を塞ぎ、西進中のクルマは
-  # y≈10 まで南へ逃げる必要がある = 左折
+  # Lower-left chicane (southwest): a block protruding south from the south face of the central island
+  # It blocks y=15..25 of the lower corridor (y=5..25), so a vehicle heading west
+  # must escape south to y~=10 = left turn
   - shape: {name: 'rectangle', length: 14.0, width: 10.0}
     state: [35.0, 20.0, 0]
 
-  # 上側ストレートの小障害物 (シケインから離した位置)
+  # Small obstacles on the top straight (positioned away from the chicane)
   - shape: {name: 'rectangle', length: 1.5, width: 1.5}
     state: [40.0, 70.0, 0]
   - shape: {name: 'rectangle', length: 2.0, width: 2.0}
     state: [55.0, 68.0, 0]
 
-  # 下側ストレートの小障害物
+  # Small obstacles on the bottom straight
   - shape: {name: 'rectangle', length: 1.5, width: 1.5}
     state: [70.0, 10.0, 0]
   - shape: {name: 'rectangle', length: 2.0, width: 2.0}
     state: [90.0, 12.0, 0]
 
-  # 左コリドールの小障害物
+  # Small obstacles in the left corridor
   - shape: {name: 'rectangle', length: 1.5, width: 1.5}
     state: [13.0, 30.0, 0]
   - shape: {name: 'rectangle', length: 2.0, width: 2.0}
     state: [10.0, 55.0, 0]
 
-  # 右コリドールの小障害物
+  # Small obstacles in the right corridor
   - shape: {name: 'rectangle', length: 1.5, width: 1.5}
     state: [108.0, 30.0, 0]
   - shape: {name: 'rectangle', length: 2.0, width: 2.0}

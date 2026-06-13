@@ -1,72 +1,72 @@
-# 右折ベース + 2 か所左折の周回コース。
+# Loop course that is right-turn-based with two left turns.
 #
-# レイアウト概要:
-#   - 外周壁 (120 x 80, 厚さ 5) で四方を囲む
-#   - 中央島 (70 x 30) を配置し、その周囲を時計回りに走行する
-#     → 4 コーナーは全て右折
-#   - 上側コリドール (x=55 付近) と下側コリドール (x=65 付近) に
-#     シケインブロックを 1 つずつ配置。ループ内で点対称になる位置とした
-#       * 上側 (東進): 内側島の北面から北へ突き出すブロック → 北に逃げる = 左折
-#       * 下側 (西進): 内側島の南面から南へ突き出すブロック → 南に逃げる = 左折
-#     これにより 1 周中に左折が 2 回発生する
+# Layout overview:
+#   - Surrounded on all four sides by an outer wall (120 x 80, thickness 5)
+#   - A central island (70 x 30) is placed, and the vehicle drives clockwise around it
+#     -> all 4 corners are right turns
+#   - One chicane block each is placed in the upper corridor (around x=55) and the
+#     lower corridor (around x=65). They are positioned point-symmetrically within the loop
+#       * Upper (heading east): a block protruding north from the north face of the inner island -> escape north = left turn
+#       * Lower (heading west): a block protruding south from the south face of the inner island -> escape south = left turn
+#     This produces two left turns per lap
 #
-# コリドール幅 (実走行可能領域):
-#   下/上 = 20 m,  左/右 = 20 m (シケイン部分は 10 m に絞られる)
+# Corridor width (actual drivable area):
+#   bottom/top = 20 m, left/right = 20 m (narrowed to 10 m at the chicane sections)
 world:
   height: 80.0
   width: 120.0
 
 obstacle:
-  # 外周壁（下）
+  # Outer wall (bottom)
   - shape: {name: 'rectangle', length: 120.0, width: 5.0}
     state: [60.0, 2.5, 0]
-  # 外周壁（上）
+  # Outer wall (top)
   - shape: {name: 'rectangle', length: 120.0, width: 5.0}
     state: [60.0, 77.5, 0]
-  # 外周壁（左）
+  # Outer wall (left)
   - shape: {name: 'rectangle', length: 5.0, width: 70.0}
     state: [2.5, 40.0, 0]
-  # 外周壁（右）
+  # Outer wall (right)
   - shape: {name: 'rectangle', length: 5.0, width: 70.0}
     state: [117.5, 40.0, 0]
 
-  # 中央島（メイン）
+  # Central island (main)
   - shape: {name: 'rectangle', length: 60.0, width: 30.0}
     state: [50.0, 40.0, 0]
-  # → x=25..95, y=25..55 を占有
+  # -> occupies x=25..95, y=25..55
 
-  # 左折ポイント 1 (上側シケイン): 中央島の上面 (y=55) から北へ突き出すブロック
-  # 上側コリドール (y=55..75) のうち y=55..65 を塞ぐため、東向き走行中の
-  # クルマは y≈70 まで北へ逃げる必要がある = 左折
+  # Left-turn point 1 (upper chicane): a block protruding north from the top face (y=55) of the central island
+  # It blocks y=55..65 of the upper corridor (y=55..75), so a vehicle heading east
+  # must escape north to y~=70 = left turn
   - shape: {name: 'rectangle', length: 14.0, width: 10.0}
     state: [55.0, 60.0, 0]
 
-  # 左折ポイント 2 (下側シケイン): 中央島の下面 (y=25) から南へ突き出すブロック
-  # 下側コリドール (y=5..25) のうち y=15..25 を塞ぐため、西向き走行中の
-  # クルマは y≈10 まで南へ逃げる必要がある = 左折
-  # 位置は上側シケインと点対称 (x=65) とした
+  # Left-turn point 2 (lower chicane): a block protruding south from the bottom face (y=25) of the central island
+  # It blocks y=15..25 of the lower corridor (y=5..25), so a vehicle heading west
+  # must escape south to y~=10 = left turn
+  # Positioned point-symmetrically to the upper chicane (x=65)
   - shape: {name: 'rectangle', length: 14.0, width: 10.0}
     state: [65.0, 20.0, 0]
 
-  # 下側ストレートの小障害物 (下側シケインから離した位置)
+  # Small obstacles on the bottom straight (positioned away from the lower chicane)
   - shape: {name: 'rectangle', length: 1.5, width: 1.5}
     state: [40.0, 12.0, 0]
   - shape: {name: 'rectangle', length: 1.5, width: 1.5}
     state: [95.0, 13.0, 0]
 
-  # 上側ストレートの小障害物 (シケインから離した位置)
+  # Small obstacles on the top straight (positioned away from the chicane)
   - shape: {name: 'rectangle', length: 1.5, width: 1.5}
     state: [90.0, 70.0, 0]
   - shape: {name: 'rectangle', length: 20.0, width: 16.0}
     state: [105.0, 67.0, 0]
 
-  # 左コリドールの小障害物
+  # Small obstacles in the left corridor
   - shape: {name: 'rectangle', length: 1.5, width: 1.5}
     state: [13.0, 30.0, 0]
   - shape: {name: 'rectangle', length: 2.0, width: 2.0}
     state: [10.0, 55.0, 0]
 
-  # 右コリドールの小障害物
+  # Small obstacles in the right corridor
   - shape: {name: 'rectangle', length: 1.5, width: 1.5}
     state: [108.0, 30.0, 0]
   - shape: {name: 'rectangle', length: 20.0, width: 20.0}

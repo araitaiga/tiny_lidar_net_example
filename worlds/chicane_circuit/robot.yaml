@@ -1,9 +1,9 @@
 kinematics: {name: 'acker'}
 shape: {name: 'rectangle', length: 4.0, width: 1.8, wheelbase: 2.5}
-# 開始位置: 上側コリドール西端、東向き (theta=0)
-# ここから時計回り (CW) に走行すると 4 コーナーは全て右折となり、
-# 上側ストレート途中のシケインで一度だけ左折が発生する。
-state: [110.0, 20.0, 90.0, 0.0]
+# Start position: west end of the upper corridor, facing east (theta=0)
+# Driving clockwise (CW) from here makes all 4 corners right turns,
+# with a single left turn occurring at the chicane partway along the upper straight.
+state: [30.0, 60.0, 0.0, 0.0]
 vel_max: [10.0, 0.7854]
 sensors:
   - type: 'lidar2d'

@@ -9,7 +9,6 @@ WORLDS_DIR = Path(__file__).parent / "worlds"
 
 def ensure_output_dir(filepath: str) -> None:
     """Create the parent directory of the output file."""
-    # 再帰的に親ディレクトリを作成
     Path(filepath).parent.mkdir(parents=True, exist_ok=True)
 
 
@@ -119,12 +118,6 @@ def create_parser() -> argparse.ArgumentParser:
         default=10000,
         help="Max steps per run (default: 10000 = sim time 1000s)",
     )
-    evaluate_parser.add_argument(
-        "--visualize",
-        "-v",
-        action="store_true",
-        help="Render each run with matplotlib (slower, near real-time)",
-    )
 
     # List of worlds
     subparsers.add_parser("list", help="List available worlds")
@@ -181,7 +174,7 @@ def main():
                 str(d) for d in WORLDS_DIR.iterdir()
                 if d.is_dir() and (d / "world.yaml").exists()
             )
-        run_evaluate(worlds, args.model, args.max_steps, args.visualize)
+        run_evaluate(worlds, args.model, args.max_steps)
 
 
 if __name__ == "__main__":

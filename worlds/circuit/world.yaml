@@ -3,9 +3,7 @@ world:
   width: 100.0
 
 obstacle:
-  # 中央の島
   - shape: {name: 'rectangle', length: 60.0, width: 20.0}
     state: [50.0, 30.0, 0]
-  # 外周壁
   - shape: {name: 'linestring', vertices: [[0, 0], [100, 0], [100, 60], [0, 60], [0, 0]]}
     state: [0, 0, 0]
