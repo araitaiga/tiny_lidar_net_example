@@ -27,6 +27,7 @@ class LidarDataset(Dataset):
         return len(self.lidar)
 
     def __getitem__(self, idx: int) -> tuple[torch.Tensor, torch.Tensor]:
+        # unsqueeze(0) adds a channel dim: (1081,) -> (1, 1081) for Conv1d
         return self.lidar[idx].unsqueeze(0), self.control[idx]
 
     @classmethod
