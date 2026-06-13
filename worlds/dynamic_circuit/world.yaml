@@ -1,0 +1,38 @@
+world:
+  height: 60.0
+  width: 100.0
+
+# Same loop course as `circuit` (central block + boundary walls), with dynamic obstacles added.
+obstacle:
+  - shape: {name: 'rectangle', length: 60.0, width: 20.0}
+    state: [50.0, 30.0, 0]
+  - shape: {name: 'linestring', vertices: [[0, 0], [100, 0], [100, 60], [0, 60], [0, 0]]}
+    state: [0, 0, 0]
+
+# Dynamic obstacles patrolling each corridor. The velocity is reversed at the ends of `bounds`.
+dynamic_obstacle:
+  # Bottom corridor: back and forth along the x-axis
+  - shape: {name: 'rectangle', length: 2.5, width: 2.5}
+    state: [40.0, 10.0, 0]
+    velocity: {vx: 1.5, vy: 0.0}
+    bounds: {x_min: 25.0, x_max: 75.0}
+  # Top corridor: back and forth along the x-axis (opposite direction)
+  - shape: {name: 'rectangle', length: 2.5, width: 2.5}
+    state: [60.0, 50.0, 0]
+    velocity: {vx: -2.0, vy: 0.0}
+    bounds: {x_min: 25.0, x_max: 75.0}
+  # Left corridor: back and forth along the y-axis
+  - shape: {name: 'rectangle', length: 2.5, width: 2.5}
+    state: [10.0, 30.0, 0]
+    velocity: {vx: 0.0, vy: 2.0}
+    bounds: {y_min: 15.0, y_max: 45.0}
+  # Left corridor: slow back and forth along the x-axis (crosses the corridor width)
+  - shape: {name: 'rectangle', length: 2.5, width: 2.5}
+    state: [10.0, 30.0, 0]
+    velocity: {vx: 1.0, vy: 0.0}
+    bounds: {x_min: 10.0, x_max: 20.0}
+  # Right corridor: back and forth along the y-axis
+  - shape: {name: 'rectangle', length: 2.5, width: 2.5}
+    state: [90.0, 30.0, 0]
+    velocity: {vx: 0.0, vy: -1.0}
+    bounds: {y_min: 15.0, y_max: 45.0}
