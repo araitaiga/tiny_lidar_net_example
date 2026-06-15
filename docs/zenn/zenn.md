@@ -284,7 +284,8 @@ def normalize_labels(labels):
     return out
 
 def denormalize_labels(labels):
-# denormalize_labels は逆変換 (各成分に最大値を掛ける)
+    # denormalize_labels は逆変換 (各成分に最大値を掛ける)
+    ...
 ```
 
 学習時はラベルを `normalize_labels` で `[-1, 1]` に揃え（前述の `LidarDataset`）、推論時はモデルの `tanh` 出力を `denormalize_labels` で物理値へ戻します。(なお、公式実装では、推論時のSteeringは逆正規化せずそのまま-1~1の値を使用しています。)
