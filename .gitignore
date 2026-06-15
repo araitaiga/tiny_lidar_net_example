@@ -9,11 +9,7 @@ wheels/
 # Virtual environments
 .venv
 
-# 出力ファイル
-outputs/
 *.png
-*.pth
-*.npz
 
 .claude
 .serena
